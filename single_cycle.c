@@ -159,6 +159,14 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
             isJump=2;
             immJl=(*alu_result&0xffffffe);
             break;
+        case 0b0000011:
+            imm=(int32_t)((inst->funct7<<5)|(inst->rd));
+            *alu_result=*alu_op1+imm;
+            break;
+        case 0b0100011: // S-type instructions - Store
+            imm=(int32_t)((inst->funct7 << 5) | inst->rd) | ((inst->imm12 & 0xfe0) >> 5);
+            *alu_result= *alu_op1+ imm;
+            break;
     }
 }
 
