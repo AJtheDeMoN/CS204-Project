@@ -161,3 +161,23 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
             break;
     }
 }
+
+
+
+int main(){
+    for(int i=0;i<1024;i++){
+        memory[i]=(uint8_t)0;
+    }
+    for(int i=0;i<32;i++){
+        registers[i]=0;
+    }
+    uint32_t instruction;
+    fetch(&pc,&instruction);
+    uint32_t alu_op1,alu_op2;
+    Instruction decoded_instruction=decode(instruction,&alu_op1,&alu_op2);
+    //execute instruction
+    uint32_t alu_result;
+    execute(&decoded_instruction,&alu_op1,&alu_op2,&alu_result);
+    
+    return 0;
+}
