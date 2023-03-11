@@ -3,8 +3,16 @@
 The project is developed as part of Computer Architecture class
 Project Name: Functional Simulator for subset of RISCV Processor
 
-Developer's Name:
-Developer's Email id:
+Developer Names:  ABHISHEK JAISWAL  (2021CSB1061)
+                  AJAYBEER SINGH    (2021CSB1063)
+                  AKANKSH CAIMI     (2021CSB1064)
+                  DEVANSHU DHAWAN   (2021CSB1082)
+                  
+Developer Email ids: ABHISHEK JAISWAL  ->  2021csb1061@iitrpr.ac.in 
+                     AJAYBEER SINGH    ->  2021csb1063@iitrpr.ac.in 
+                     AKANKSH CAIMI     ->  2021csb1064@iitrpr.ac.in 
+                     DEVANSHU DHAWAN   ->  2021csb1082@iitrpr.ac.in 
+                     
 Date: 
 
 */
