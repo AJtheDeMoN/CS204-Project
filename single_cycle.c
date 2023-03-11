@@ -31,6 +31,16 @@ uint32_t getElement(int address){
     return *(int*)(instruction_memory+address);
 }
 
+void print_instruction(Instruction inst){
+    printf("opcode: %x\n", inst.opcode);
+    printf("rd: %x\n", inst.rd);
+    printf("func3: %x\n", inst.funct3);
+    printf("rs1: %x\n", inst.rs1);
+    printf("rs2: %x\n", inst.rs2);
+    printf("func7: %x\n", inst.funct7);
+    printf("imm12: %x\n", inst.imm12);
+}
+
 uint32_t fetch(uint32_t* pc,uint32_t* inst){
     if(isBranch){
         pc+=immB;
@@ -47,7 +57,8 @@ uint32_t fetch(uint32_t* pc,uint32_t* inst){
     else{
         pc+=4;
     }
-    *inst=0;//i want 32 bits here from memory 
+    *inst=getElement(*pc);//i want 32 bits here from memory 
+    printf("Fetching instruction %x at pc=%x\n", *inst, *pc);
     return 0;
 }
 Instruction decode(uint32_t inst,uint32_t* alu_op1,uint32_t* alu_op2){
@@ -61,34 +72,45 @@ Instruction decode(uint32_t inst,uint32_t* alu_op1,uint32_t* alu_op2){
     decoded_inst.imm12=(inst>>20)& 0xfff;
     *alu_op1=registers[decoded_inst.rs1];
     *alu_op2=registers[decoded_inst.rs2];
+    printf("Decoded instruction as:\n");
+    print_instruction(decoded_inst);
     return decoded_inst;
 }
 void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu_result){
     int32_t imm;
+    printf("executing instruction: ");
     switch(inst->opcode){
         case 0b0110011:
+            printf("%x = %d",inst->rd ,*alu_op1);
             switch(inst->funct3){
                 case 0b000:
                    if(inst->funct7==0b0000000){//addition
+                    printf(" + ");
                     *alu_result=*alu_op1+*alu_op2;
                    }
                    else if(inst->funct7==0b0100000){//sub
+                    printf(" - ");
                     *alu_result=*alu_op1+*alu_op2;
                    }
                    break;
                 case 0b001:
+                    printf(" << ");
                     *alu_result=*alu_op1<<(*alu_op2& 0x1f);
                     break;
                 case 0b010://slt
+                    printf(" < ");
                     *alu_result=*alu_op1<*alu_op2?1:0;
                     break;
                 case 0b011: // SLTU
+                    printf(" < ");
                     *alu_result= ((uint32_t)*alu_op1<(uint32_t)*alu_op2)?1:0;
                     break;
                 case 0b100: // XOR
+                    printf(" ^ ");
                     *alu_result = *alu_op1 ^ *alu_op2;
                     break;
                 case 0b101: // SRL, SRA
+                    printf(" >> ");
                     if (inst->funct7 == 0b0000000) { // SRL
                         *alu_result=*alu_op1>>(*alu_op2 & 0x1f);
                     } else if (inst->funct7 == 0b0100000) { // SRA
@@ -96,42 +118,55 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
                     }
                     break;
                 case 0b110: // OR
+                    printf(" | ");
                     *alu_result= *alu_op1 | *alu_op2;
                     break; 
                 case 0b111: // AND
+                    printf(" & ");
                     *alu_result = *alu_op1 & *alu_op2;
                     break;
              }
+             printf("%d", *alu_op1);
             break;
         case 0b0010011:
+            printf("%d = %d",inst->rd ,*alu_op1);
             imm=(int32_t)((inst->funct7<<5)|(inst->rd));
             switch(inst->funct3){
                 case 0b000:
+                    printf(" + ");
                     *alu_result=*alu_op1+imm;
                     break;
                 case 0b010: // SLTI
+                    printf(" < ");
                     *alu_result = *alu_op1 < imm ? 1 : 0;
                     break;
                 case 0b011: // SLTIU
+                    printf(" < ");
                     *alu_result = ((uint32_t)*alu_op1) < ((uint32_t)imm) ? 1 : 0;
                     break;
                 case 0b100: // XORI
+                    printf(" ^ ");
                     *alu_result = *alu_op1 ^ imm;
                     break;
                 case 0b110: // ORI
+                    printf(" | ");
                     *alu_result = *alu_op1 | imm;
                     break;
                 case 0b111: // ANDI
+                    printf(" & ");
                     *alu_result = *alu_op1 & imm;
                     break;
                 case 0b101:
                     if (inst->funct7 == 0b0000000) { // SRLI
+                        printf(" << ");
                         *alu_result = *alu_op1 >> (imm & 0x1f);
                     } else { // SRAI
+                        printf(" >> ");
                         *alu_result = (int32_t)*alu_op1 >> (imm & 0x1f);
                     }
                     break;
             }
+            printf("%d", imm);
             break;
         case 0b1100011://branch instructions
             immB=(int32_t)((inst->funct7<<11)|(inst->imm12<<1));
@@ -249,7 +284,7 @@ int main(){
     // for(int i=0;i<32;i++){
     //     registers[i]=0;
     // }
-    
+
     uint32_t instruction;
     fetch(&pc,&instruction);
     uint32_t alu_op1,alu_op2;
