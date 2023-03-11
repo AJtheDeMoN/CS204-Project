@@ -170,7 +170,42 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
     }
 }
 
-
+void memoryRead(Instruction* instruction, uint32_t* alu_result, uint32_t* read, uint32_t* write) {
+    switch (instruction->opcode) {
+        case 0b0000011: // Load
+            switch (instruction->funct3) {
+            case 0b000: // LB
+                *read = ((int8_t)&memory[*alu_result]);
+                break;
+            case 0b001: // LH
+                *read = ((int16_t)&memory[*alu_result]);
+                break;
+            case 0b010: // LW
+                *read = ((int32_t)&memory[*alu_result]);
+                break;
+            case 0b100: // LBU
+                *read = memory[*alu_result];
+                break;
+            case 0b101: // LHU
+                *read = ((uint16_t)&memory[*alu_result]);
+                break;
+        }
+        break;
+        case 0b0100011: //Store
+            switch (instruction->funct3) {
+            case 0b000: // SB
+                *write = (uint32_t)*alu_result & 0xff;
+                break;
+            case 0b001: // SH
+                *write = (uint32_t)*alu_result & 0xffff;
+                break;
+            case 0b010: // SW
+                *write = (uint32_t)*alu_result;
+                break;
+        }
+        break;
+    }
+}
 
 int main(){
     for(int i=0;i<1024;i++){
@@ -186,6 +221,8 @@ int main(){
     //execute instruction
     uint32_t alu_result;
     execute(&decoded_instruction,&alu_op1,&alu_op2,&alu_result);
+    uint32_t read,write;//memory read
+    memoryRead(&decoded_instruction,&alu_result,&read,&write);
     
     return 0;
 }
