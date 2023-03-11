@@ -12,14 +12,26 @@ typedef struct{
     uint32_t imm12:12;
 } Instruction;
 
+uint8_t instruction_memory[1024];
 uint8_t memory[1024];
 uint32_t registers[32];
 uint32_t pc=0;
 int32_t immB=0,immJ=0,immJl=0;
 int isBranch=0,isJump=0;
 
+void store_instructions(){
+    FILE *inp=fopen("dump.mc", "r");
+    unsigned int address, code;
+    while(fscanf(inp, "%x %x", &address, &code)!=EOF){
+        *(int*)(instruction_memory+address)=code;
+    }
+}
+
+uint32_t getElement(int address){
+    return *(int*)(instruction_memory+address);
+}
+
 uint32_t fetch(uint32_t* pc,uint32_t* inst){
-    *inst=0;//i want 32 bits here from memory 
     if(isBranch){
         pc+=immB;
         isBranch=0;
@@ -35,6 +47,7 @@ uint32_t fetch(uint32_t* pc,uint32_t* inst){
     else{
         pc+=4;
     }
+    *inst=0;//i want 32 bits here from memory 
     return 0;
 }
 Instruction decode(uint32_t inst,uint32_t* alu_op1,uint32_t* alu_op2){
@@ -227,12 +240,16 @@ void writeback(Instruction* instruction, uint32_t* alu_result, uint32_t* read) {
 }
 
 int main(){
-    for(int i=0;i<1024;i++){
-        memory[i]=(uint8_t)0;
-    }
-    for(int i=0;i<32;i++){
-        registers[i]=0;
-    }
+    store_insrtuctions();
+    // initialising to 0 not required as global variables are always 0
+
+    // for(int i=0;i<1024;i++){
+    //     memory[i]=(uint8_t)0;
+    // }
+    // for(int i=0;i<32;i++){
+    //     registers[i]=0;
+    // }
+    
     uint32_t instruction;
     fetch(&pc,&instruction);
     uint32_t alu_op1,alu_op2;
