@@ -194,13 +194,13 @@ void memoryRead(Instruction* instruction, uint32_t* alu_result, uint32_t* read, 
         case 0b0100011: //Store
             switch (instruction->funct3) {
             case 0b000: // SB
-                *write = (uint32_t)*alu_result & 0xff;
+                //to be written
                 break;
             case 0b001: // SH
-                *write = (uint32_t)*alu_result & 0xffff;
+                //to be written
                 break;
             case 0b010: // SW
-                *write = (uint32_t)*alu_result;
+                //to be written
                 break;
         }
         break;
