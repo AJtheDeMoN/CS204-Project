@@ -207,6 +207,25 @@ void memoryRead(Instruction* instruction, uint32_t* alu_result, uint32_t* read, 
     }
 }
 
+void writeback(Instruction* instruction, uint32_t* alu_result, uint32_t* read) {
+    switch (instruction->opcode) {
+    case 0b0110011: // r
+        registers[instruction->rd]=*alu_result;
+        break;
+    case 0b0010011:
+        registers[instruction->rd]=*alu_result;
+        break;
+    case 0b0000011: // l
+        registers[instruction->rd] = *read;
+        break;
+    case 0b0100011: // s
+        //to be written
+        break;
+    default:
+        break;
+    }
+}
+
 int main(){
     for(int i=0;i<1024;i++){
         memory[i]=(uint8_t)0;
@@ -223,6 +242,6 @@ int main(){
     execute(&decoded_instruction,&alu_op1,&alu_op2,&alu_result);
     uint32_t read,write;//memory read
     memoryRead(&decoded_instruction,&alu_result,&read,&write);
-    
+    writeback(&decoded_instruction,&alu_result,&read);//writeback
     return 0;
 }
