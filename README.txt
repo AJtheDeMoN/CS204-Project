@@ -15,23 +15,16 @@ Directory Structure:
 --------------------
 CS204-Project
   |
-  |- bin
-      |
-      |- myARMSim
   |- doc
       |
       |- design-doc.docx
-  |- include
-      |
-      |- myARMSim.h
   |- src
-      |- main.c
-      |- Makefile
-      |- myARMSim.h
+      |- myRISCVsim.c
   |- test
       |- simple_add.mem
-      |- fib.mem
-      |- array_add.mem
+      |- fibonacci.mem
+      |- bubble_sort.mem
+      |- sum_of_array.mem
 
 How to build
 ------------
