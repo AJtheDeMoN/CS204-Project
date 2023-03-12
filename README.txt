@@ -18,14 +18,15 @@ CS204-Project
   |- doc
       |
       |- design-doc.docx
+  |- readme.txt
   |- src
       |
       |- myRISCVsim.c
   |- test
       |
-      |- simple_add.mem
-      |- fibonacci.mem
       |- bubble_sort.mem
+      |- fibonacci.mem
+      |- simple_add.mem
       |- sum_of_array.mem
 
 How to build
