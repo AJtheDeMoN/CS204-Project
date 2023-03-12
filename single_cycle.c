@@ -274,6 +274,13 @@ void writeback(Instruction* instruction, uint32_t* alu_result, uint32_t* read) {
     }
 }
 
+void assign_default_values() {
+    for(int i = 0;i<32;i++) {
+        registers[i] = 0;
+    }    
+    registers[2] = 2147483632;  // stack pointer
+}
+
 int main(){
     store_insrtuctions();
     // initialising to 0 not required as global variables are always 0
@@ -284,7 +291,7 @@ int main(){
     // for(int i=0;i<32;i++){
     //     registers[i]=0;
     // }
-
+    assign_default_values();
     uint32_t instruction;
     fetch(&pc,&instruction);
     uint32_t alu_op1,alu_op2;
