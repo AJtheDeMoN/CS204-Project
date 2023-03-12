@@ -19,8 +19,10 @@ CS204-Project
       |
       |- design-doc.docx
   |- src
+      |
       |- myRISCVsim.c
   |- test
+      |
       |- simple_add.mem
       |- fibonacci.mem
       |- bubble_sort.mem
