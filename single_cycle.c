@@ -1,3 +1,22 @@
+/* 
+
+The project is developed as part of Computer Architecture class
+Project Name: Functional Simulator for subset of RISCV Processor
+
+Developer Names:  ABHISHEK JAISWAL  (2021CSB1061)
+                  AJAYBEER SINGH    (2021CSB1063)
+                  AKANKSH CAIMI     (2021CSB1064)
+                  DEVANSHU DHAWAN   (2021CSB1082)
+                  
+Developer Email ids: ABHISHEK JAISWAL  ->  2021csb1061@iitrpr.ac.in 
+                     AJAYBEER SINGH    ->  2021csb1063@iitrpr.ac.in 
+                     AKANKSH CAIMI     ->  2021csb1064@iitrpr.ac.in 
+                     DEVANSHU DHAWAN   ->  2021csb1082@iitrpr.ac.in 
+                     
+Date: 
+
+*/
+
 #include<stdio.h>
 #include<stdint.h>
 
@@ -275,22 +294,12 @@ void writeback(Instruction* instruction, uint32_t* alu_result, uint32_t* read) {
 }
 
 void assign_default_values() {
-    for(int i = 0;i<32;i++) {
-        registers[i] = 0;
-    }    
+    for(int i = 0;i<32;i++) registers[i] = 0; 
     registers[2] = 2147483632;  // stack pointer
 }
 
 int main(){
     store_insrtuctions();
-    // initialising to 0 not required as global variables are always 0
-
-    // for(int i=0;i<1024;i++){
-    //     memory[i]=(uint8_t)0;
-    // }
-    // for(int i=0;i<32;i++){
-    //     registers[i]=0;
-    // }
     assign_default_values();
     uint32_t instruction;
     fetch(&pc,&instruction);
