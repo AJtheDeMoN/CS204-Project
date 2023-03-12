@@ -66,11 +66,11 @@ uint32_t fetch(uint32_t* pc,uint32_t* inst){
         isBranch=0;
     }
     else if(isJump==1){
-        pc=immJ;
+        *pc=immJ;
         isJump=0;
     }
     else if(isJump==2){
-        pc=immJl;
+        *pc=immJl;
         isJump=0;
     }
     else{
@@ -113,7 +113,7 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
                    }
                    break;
                 case 0b001:
-                    printf(" << ");
+                    printf(" << ");//sll
                     *alu_result=*alu_op1<<(*alu_op2& 0x1f);
                     break;
                 case 0b010://slt
@@ -152,7 +152,7 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
             imm=(int32_t)((inst->funct7<<5)|(inst->rd));
             switch(inst->funct3){
                 case 0b000:
-                    printf(" + ");
+                    printf(" + "); //addi
                     *alu_result=*alu_op1+imm;
                     break;
                 case 0b010: // SLTI
