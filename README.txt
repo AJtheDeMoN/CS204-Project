@@ -27,7 +27,6 @@ CS204-Project
       |
       |- bubble_sort.mem
       |- fibonacci.mem
-      |- simple_add.mem
       |- sum_of_array.mem
 
 How to build
