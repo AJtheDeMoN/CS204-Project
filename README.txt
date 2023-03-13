@@ -34,6 +34,8 @@ How to Execute
 For running programme:
 	First, make sure tkinter library is installed for python GUI.
 	Then, open terminal and run following instructions:
+	
 	$cd src
 	$python3 gui_main.py
 	
+	You will get your desired output on the GUI.
