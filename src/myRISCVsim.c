@@ -39,7 +39,7 @@ int32_t immB=0,immJ=0,immJl=0;
 int isBranch=0,isJump=0;
 
 void store_instructions(){
-    FILE *inp=fopen("dump.mc", "r");
+    FILE *inp=fopen("./test/dump.mc", "r");
     unsigned int address, code;
     while(fscanf(inp, "%x %x", &address, &code)!=EOF){
         *(int*)(instruction_memory+address)=code;
