@@ -23,7 +23,7 @@ def nxt_func(nxt, line, text):
     line[0]+=1
 
 def run_func():
-    subprocess.run(['gcc', 'run.c', '-o', 'run', '&&', 'run'], shell=True)
+    subprocess.run(['gcc', 'myRISCVsim.c', '-o', 'run', '&&', 'run'], shell=True)
     reg=open("register.txt", "r")
     regVals=reg.read()
     reg.close()
