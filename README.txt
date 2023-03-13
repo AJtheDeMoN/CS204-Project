@@ -20,7 +20,6 @@ CS204-Project
       |- design-doc.docx
   |- src
       |
-      |- Makefile
       |- myRISCVsim.c
   |- test
       |
