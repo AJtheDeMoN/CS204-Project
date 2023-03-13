@@ -20,6 +20,8 @@ CS204-Project
       |- design-doc.docx
   |- src
       |
+      |- gui.py
+      |- gui_main.py
       |- myRISCVsim.c
   |- test
       |
