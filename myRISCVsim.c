@@ -62,7 +62,7 @@ void print_instruction(Instruction inst){
 
 uint32_t fetch(uint32_t* pc,uint32_t* inst){
     if(isBranch){
-        pc+=immB;
+        *pc+=immB;
         isBranch=0;
     }
     else if(isJump==1){
@@ -74,7 +74,7 @@ uint32_t fetch(uint32_t* pc,uint32_t* inst){
         isJump=0;
     }
     else{
-        pc+=4;
+        *pc+=4;
     }
     *inst=getElement(*pc);//i want 32 bits here from memory 
     printf("Fetching instruction %x at pc=%x\n", *inst, *pc);
@@ -299,7 +299,7 @@ void assign_default_values() {
 }
 
 int main(){
-    store_insrtuctions();
+    store_instructions();
     assign_default_values();
     uint32_t instruction;
     fetch(&pc,&instruction);
