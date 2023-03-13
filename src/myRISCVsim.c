@@ -307,7 +307,7 @@ void writeback(Instruction* instruction, uint32_t* alu_result, uint32_t* read) {
 
 void assign_default_values() {
     for(int i = 0;i<32;i++) registers[i]=0; 
-    registers[2]=2147483632;  // stack pointer
+    registers[2]=0x90;  // stack pointer
 }
 
 void show_memory(){
