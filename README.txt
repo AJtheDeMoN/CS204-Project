@@ -24,9 +24,9 @@ CS204-Project
       |- myRISCVsim.c
   |- test
       |
-      |- bubble_sort.mem
-      |- fibonacci.mem
-      |- sum_of_array.mem
+      |- bubble_sort.mc
+      |- fibonacci.mc
+      |- sum_of_array.mc
   |- readme.txt
   
 How to Execute
