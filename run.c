@@ -25,7 +25,7 @@ typedef struct{
     uint32_t rs1:5;
     uint32_t rs2:5;
     uint32_t funct7:7;
-    uint32_t imm12:12;
+    int32_t imm12:12;
 } Instruction;
 
 uint8_t instruction_memory[1024];
@@ -36,7 +36,7 @@ int32_t immB=0,immJ=0,immJl=0;
 int isBranch=0,isJump=0;
 int stop=0;
 void store_instructions(){
-    FILE *inp=fopen("dump.mc", "r");
+    FILE *inp=fopen("../test/fibonacci.mc", "r");
     unsigned int address, code;
     while(fscanf(inp, "%x %x", &address, &code)!=EOF){
         *(uint32_t*)(instruction_memory+address)=code;
