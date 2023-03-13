@@ -21,6 +21,7 @@ CS204-Project
   |- readme.txt
   |- src
       |
+      |- Makefile
       |- myRISCVsim.c
   |- test
       |
