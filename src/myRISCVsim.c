@@ -186,7 +186,13 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
             printf("%d", imm);
             break;
         case (0b1100011)://branch instructions
-            immB=(int32_t)((inst->funct7<<11)|(inst->imm12<<1));
+            // immB=(int32_t)((inst->funct7<<11)|(inst->imm12<<1));
+            immB=(inst->funct7&(0b111111))<<5;
+            immB+=((inst->funct7>>6)&1)<<12;
+            immB+=(inst->rd&1)<<11;
+            immB+=(inst->rd&(0b11110));
+            if((immB>>12)&1)
+                immB+=0b11111111111111111110000000000000;
             switch(inst->funct3){
                 printf("%d ",inst->rs1);
                 case (0b000):
@@ -247,7 +253,7 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
 }
 
 void memoryRead(Instruction* instruction, uint32_t* alu_result, uint32_t* read, uint32_t* write) {
-    printf("Readimg from memory\n");
+    printf("Reading from memory\n");
     switch (instruction->opcode) {
         case (0b0000011): // Load
             switch (instruction->funct3) {
@@ -307,7 +313,7 @@ void writeback(Instruction* instruction, uint32_t* alu_result, uint32_t* read) {
 
 void assign_default_values() {
     for(int i = 0;i<32;i++) registers[i]=0; 
-    registers[2]=2147483632;  // stack pointer
+    registers[2]=0x90;  // stack pointer
 }
 
 void show_memory(){
