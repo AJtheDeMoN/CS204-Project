@@ -18,7 +18,6 @@ CS204-Project
   |- doc
       |
       |- design-doc.docx
-  |- readme.txt
   |- src
       |
       |- Makefile
@@ -28,6 +27,7 @@ CS204-Project
       |- bubble_sort.mem
       |- fibonacci.mem
       |- sum_of_array.mem
+  |- readme.txt
 
 How to build
 ------------
