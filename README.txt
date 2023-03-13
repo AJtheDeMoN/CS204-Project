@@ -20,7 +20,7 @@ CS204-Project
       |- design-doc.docx
   |- src
       |
-      |- gui.py
+      |- functions.py
       |- gui_main.py
       |- myRISCVsim.c
   |- test
@@ -29,12 +29,13 @@ CS204-Project
       |- fibonacci.mem
       |- sum_of_array.mem
   |- readme.txt
-
+  
 How to build
 ------------
-For building:
+For running programme:
+	First, make sure tkinter library is installed.
 	$cd src
-	$make
+	$python3 gui_main.py
 
 For cleaning the project:
 	$cd src
