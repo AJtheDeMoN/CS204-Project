@@ -6,8 +6,7 @@ README
 
 Table of contents
 1. Directory Structure
-2. How to build
-3. How to execute
+2. How to execute
 
 
 
@@ -30,18 +29,11 @@ CS204-Project
       |- sum_of_array.mem
   |- readme.txt
   
-How to build
-------------
+How to Execute
+--------------
 For running programme:
-	First, make sure tkinter library is installed.
+	First, make sure tkinter library is installed for python GUI.
+	Then, open terminal and run following instructions:
 	$cd src
 	$python3 gui_main.py
-
-For cleaning the project:
-	$cd src
-	$make clean
-
-
-How to execute
---------------
-./myARMSim test/simple_add.mem
+	
