@@ -307,7 +307,7 @@ void memoryRead(Instruction* instruction, uint32_t* alu_result, uint32_t* read, 
                 memory[*alu_result] = registers[instruction->rs2] & 0xffff;
                 break;
             case (0b010): // SW
-                 memory[*alu_result] = registers[instruction->rs2];
+                memory[*alu_result] = registers[instruction->rs2];
                 break;
         }
         break;}
