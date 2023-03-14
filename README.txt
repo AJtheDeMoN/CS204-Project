@@ -23,6 +23,7 @@ CS204-Project
       |- gui_main.py
       |- memory.txt
       |- myRISCVsim.c
+      |- myRISCVdebug.c
       |- register.txt
   |- test
       |
