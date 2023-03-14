@@ -21,7 +21,9 @@ CS204-Project
       |
       |- functions.py
       |- gui_main.py
+      |- memory.txt
       |- myRISCVsim.c
+      |- register.txt
   |- test
       |
       |- bubble_sort.mc
