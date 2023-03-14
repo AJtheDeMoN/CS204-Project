@@ -35,14 +35,22 @@ uint32_t pc=-4;
 int32_t immB=0,immJ=0,immJl=0;
 int isBranch=0,isJump=0;
 int stop=0;
+
+// void store_instructions(){
+//     FILE *inp=fopen("../test/bubble_sort.mc", "r");
+//     unsigned int address, code;
+//     while(fscanf(inp, "%x %x", &address, &code)!=EOF){
+//         *(uint32_t*)(instruction_memory+address)=code;
+//     }
+// }
 void store_instructions(){
-    FILE *inp=fopen("../test/new.txt", "r");
-    unsigned int address, code;
-    while(fscanf(inp, "%x %x", &address, &code)!=EOF){
+    FILE *inp=fopen("../test/new.mc", "r");
+    unsigned int address=0, code;
+    while(fscanf(inp, "%x",&code)!=EOF){
         *(uint32_t*)(instruction_memory+address)=code;
+        address+=4;
     }
 }
-
 uint32_t getElement(int address){
     return *(uint32_t*)(instruction_memory+address);
 }
@@ -66,7 +74,7 @@ uint32_t fetch(uint32_t* pc,uint32_t* inst){
         isBranch=0;
     }
     else if(isJump==1){
-        *pc=immJ;
+        *pc+=immJ;
         isJump=0;
     }
     else if(isJump==2){
@@ -95,7 +103,7 @@ Instruction decode(uint32_t inst,uint32_t* alu_op1,uint32_t* alu_op2){
     print_instruction(decoded_inst);
     return decoded_inst;
 }
-void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu_result){
+void execute(Instruction* inst,uint32_t instruction,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu_result){
     int32_t imm;
     printf("executing instruction: ");
     switch(inst->opcode){
@@ -155,6 +163,10 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
                 case (0b000):
                     printf(" + "); //addi
                     *alu_result=*alu_op1+imm;
+                    break;
+                case (0b001):
+                    printf(" << ");
+                    *alu_result=*alu_op1<<imm;
                     break;
                 case (0b010): // SLTI
                     printf(" < ");
@@ -226,20 +238,26 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
             }
             break;
         case (0b1101111)://jal
-            imm=((inst->imm12&0x800)<<11)|((inst->imm12&0xff000)>>9)|((inst->imm12&0x7fe)>>8)|(inst->funct7<<12);
+            // imm=((inst->imm12&0x800)<<11)|((inst->imm12&0xff000)>>9)|((inst->imm12&0x7fe)>>8)|(inst->funct7<<12);
+            immJ=(((instruction>>31)&0x1)<<20)|(((instruction>>12)&0xff)<<12)|(((instruction>>20)&0x1)<<11)|(((instruction>>21)&0x3ff)<<1);
+            immJ=(immJ<<11)>>11;
             printf("%d = %d + 4",inst->rd,pc);
             *alu_result=*alu_op1+4;
             registers[inst->rd]=pc+4;
             isJump=1;
-            immJ=(*alu_result&0xffffffe)+imm;
+            // immJ=(*alu_result&0xffffffe)+imm;
             break;
         case (0b1100111)://jalr
+            immJl=(((instruction>>31)&0x1)<<20)|(((instruction>>12)&0xff)<<12)|(((instruction>>20)&0x1)<<11)|(((instruction>>21)&0x3ff)<<1);
+            immJl=(immJl<<11)>>11;
             printf("%d = %d + 4",inst->rd,pc);
             imm=(int32_t)inst->imm12;
             *alu_result=*alu_op1+imm;
             registers[inst->rd]=pc+4;
             isJump=2;
-            immJl=(*alu_result&0xffffffe);
+            immJl=*alu_op1+immJl;
+            // immJl=(*alu_result&0xffffffe);
+            
             break;
         case (0b0000011)://l
             // imm=(int32_t)((inst->funct7<<5)|(inst->rd));
@@ -309,6 +327,7 @@ void writeback(Instruction* instruction, uint32_t* alu_result, uint32_t* read) {
     default:
         break;
     }
+    registers[0]=0;
 }
 
 void assign_default_values() {
@@ -338,6 +357,7 @@ void show_register(){
 int main(){
     store_instructions();
     assign_default_values();
+    // int count=0;
     while(1){
         uint32_t instruction;
         fetch(&pc,&instruction);
@@ -348,7 +368,7 @@ int main(){
         }
         //execute instruction
         uint32_t alu_result;
-        execute(&decoded_instruction,&alu_op1,&alu_op2,&alu_result);
+        execute(&decoded_instruction,instruction,&alu_op1,&alu_op2,&alu_result);
         uint32_t read,write;//memory read
         memoryRead(&decoded_instruction,&alu_result,&read,&write);
         writeback(&decoded_instruction,&alu_result,&read);//writeback
