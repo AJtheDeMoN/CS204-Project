@@ -117,7 +117,7 @@ void execute(Instruction* inst,uint32_t instruction,uint32_t* alu_op1,uint32_t* 
                    }
                    else if(inst->funct7==(0b0100000)){//sub
                     printf(" - ");
-                    *alu_result=*alu_op1+*alu_op2;
+                    *alu_result=*alu_op1-*alu_op2;
                    }
                    break;
                 case (0b001):
@@ -243,7 +243,8 @@ void execute(Instruction* inst,uint32_t instruction,uint32_t* alu_op1,uint32_t* 
             immJ=(immJ<<11)>>11;
             printf("%d = %d + 4",inst->rd,pc);
             *alu_result=*alu_op1+4;
-            registers[inst->rd]=pc+4;
+            registers[1]=pc+4;
+            // registers[inst->rd]=pc+4;
             isJump=1;
             // immJ=(*alu_result&0xffffffe)+imm;
             break;
@@ -256,6 +257,7 @@ void execute(Instruction* inst,uint32_t instruction,uint32_t* alu_op1,uint32_t* 
             registers[inst->rd]=pc+4;
             isJump=2;
             immJl=*alu_op1+immJl;
+            immJl=registers[1];
             // immJl=(*alu_result&0xffffffe);
             
             break;
