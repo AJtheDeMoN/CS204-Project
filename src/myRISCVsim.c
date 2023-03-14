@@ -36,7 +36,7 @@ int32_t immB=0,immJ=0,immJl=0;
 int isBranch=0,isJump=0;
 int stop=0;
 void store_instructions(){
-    FILE *inp=fopen("../test/fibonacci.mc", "r");
+    FILE *inp=fopen("../test/new.txt", "r");
     unsigned int address, code;
     while(fscanf(inp, "%x %x", &address, &code)!=EOF){
         *(uint32_t*)(instruction_memory+address)=code;
@@ -45,6 +45,9 @@ void store_instructions(){
 
 uint32_t getElement(int address){
     return *(uint32_t*)(instruction_memory+address);
+}
+uint32_t getElementMemory(uint32_t address){
+    return *(uint32_t*)(memory+address);
 }
 
 void print_instruction(Instruction inst){
@@ -239,7 +242,8 @@ void execute(Instruction* inst,uint32_t* alu_op1,uint32_t* alu_op2,uint32_t* alu
             immJl=(*alu_result&0xffffffe);
             break;
         case (0b0000011)://l
-            imm=(int32_t)((inst->funct7<<5)|(inst->rd));
+            // imm=(int32_t)((inst->funct7<<5)|(inst->rd));
+            imm=(int32_t)inst->imm12;
             printf("%d + %d", inst->rs1, imm);
             *alu_result=*alu_op1+imm;
             break;
@@ -258,35 +262,35 @@ void memoryRead(Instruction* instruction, uint32_t* alu_result, uint32_t* read, 
         case (0b0000011): // Load
             switch (instruction->funct3) {
             case (0b000): // LB
-                *read = ((int8_t)&memory[*alu_result]);
+                *read = ((int8_t)getElementMemory(*alu_result));
                 break;
             case (0b001): // LH
-                *read = ((int16_t)&memory[*alu_result]);
+                *read = ((int16_t)getElementMemory(*alu_result));
                 break;
             case (0b010): // LW
-                *read = ((int32_t)&memory[*alu_result]);
+                *read = ((int32_t)getElementMemory(*alu_result));
                 break;
             case (0b100): // LBU
-                *read = memory[*alu_result];
+                *read = ((uint8_t)getElementMemory(*alu_result));
                 break;
             case (0b101): // LHU
-                *read = ((uint16_t)&memory[*alu_result]);
+                *read = ((uint16_t)getElementMemory(*alu_result));
                 break;
         }
         break;
-        case (0b0100011): //Store
+        case (0b0100011): {//Store
             switch (instruction->funct3) {
             case (0b000): // SB
-                //to be written
+                memory[*alu_result] = registers[instruction->rs2] & 0b1111111;
                 break;
             case (0b001): // SH
-                //to be written
+                memory[*alu_result] = registers[instruction->rs2] & 0xffff;
                 break;
             case (0b010): // SW
-                //to be written
+                 memory[*alu_result] = registers[instruction->rs2];
                 break;
         }
-        break;
+        break;}
     }
 }
 
@@ -302,10 +306,6 @@ void writeback(Instruction* instruction, uint32_t* alu_result, uint32_t* read) {
     case (0b0000011): // i
         registers[instruction->rd] = *read;
         break;
-    case (0b0100011):{ // s
-        uint32_t temp= instruction->rd + instruction->funct7<<5;
-        memory[*alu_result] = temp;
-        break;}
     default:
         break;
     }
