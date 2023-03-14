@@ -36,14 +36,14 @@ int32_t immB=0,immJ=0,immJl=0;
 int isBranch=0,isJump=0;
 int stop=0;
 
-void store_instructions(){
-    FILE *inp=fopen("../test/bubble_sort.mc", "r");
+void store_instructions(char* location){
+    FILE *inp=fopen(location, "r");
+    // FILE *inp=fopen("../test/new.mc", "r");
     unsigned int address, code;
-    while(fscanf(inp, "%x %x", &address, &code)!=EOF){
+    while(fscanf(inp, "%x %x",&address,&code)!=EOF){
         *(uint32_t*)(instruction_memory+address)=code;
     }
 }
-
 uint32_t getElement(int address){
     return *(uint32_t*)(instruction_memory+address);
 }
@@ -349,8 +349,8 @@ void show_register(){
     }
 }
 
-int main(){
-    store_instructions();
+int main(int argv, char** argc){
+    store_instructions(argc[1]);
     assign_default_values();
     // int count=0;
     while(1){
