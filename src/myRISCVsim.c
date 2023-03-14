@@ -243,21 +243,21 @@ void execute(Instruction* inst,uint32_t instruction,uint32_t* alu_op1,uint32_t* 
             immJ=(immJ<<11)>>11;
             printf("%d = %d + 4",inst->rd,pc);
             *alu_result=*alu_op1+4;
-            registers[1]=pc+4;
-            // registers[inst->rd]=pc+4;
+            // registers[1]=pc+4;
+            registers[inst->rd]=pc+4;
             isJump=1;
             // immJ=(*alu_result&0xffffffe)+imm;
             break;
         case (0b1100111)://jalr
-            immJl=(((instruction>>31)&0x1)<<20)|(((instruction>>12)&0xff)<<12)|(((instruction>>20)&0x1)<<11)|(((instruction>>21)&0x3ff)<<1);
-            immJl=(immJl<<11)>>11;
+            // immJl=(((instruction>>31)&0x1)<<20)|(((instruction>>12)&0xff)<<12)|(((instruction>>20)&0x1)<<11)|(((instruction>>21)&0x3ff)<<1);
+            // immJl=(immJl<<11)>>11;
             printf("%d = %d + 4",inst->rd,pc);
             imm=(int32_t)inst->imm12;
             *alu_result=*alu_op1+imm;
             registers[inst->rd]=pc+4;
             isJump=2;
-            immJl=*alu_op1+immJl;
-            immJl=registers[1];
+            immJl=*alu_result;
+            // immJl=registers[1];
             // immJl=(*alu_result&0xffffffe);
             
             break;
