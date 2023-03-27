@@ -9,6 +9,7 @@ public:
     Predictor(){
         hash.clear();
     }
+
     bool check(uint32_t pc){
         if(hash.find(pc)==hash.end())
             return false;
@@ -24,8 +25,11 @@ public:
     }
 
     uint32_t predict(uint32_t pc){
-        return hash[pc];
+        if(hash.find(pc)!=hash.end())
+            return hash[pc];
+        else return pc+4;
     }
+    
     ~Predictor(){
         hash.clear();
     }
