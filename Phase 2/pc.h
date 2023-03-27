@@ -1,15 +1,18 @@
-#ifndef pc_class
-#define pc_class
+#ifndef PC_CLASS
+#define PC_CLASS
 #include<stdint.h>
+#include "Predictor.h"
 class PC
 {
 public:
-    uint32_t pc, branchTarget;
+    uint32_t pc;
     PC(){
-        pc=0, branchTarget=0;
+        pc=0;
     }
-    void updatePC(){
-        pc+=branchTarget;
+    void updatePC(Predictor &p){
+        if(p.check(pc))
+            pc=p.predict(pc);
+        else pc+=4;
     }
     // void updateBranch(params){
         // parse params

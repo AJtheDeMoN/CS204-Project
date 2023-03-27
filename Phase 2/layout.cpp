@@ -1,5 +1,6 @@
 #include<iostream>
-#include "pc.h"
+#include "PC.h"
+#include "Predictor.h"
 using namespace std;
 
 
@@ -51,13 +52,14 @@ void writeback(Pipeline &p, Control &control);
 void idea(){
     // uint32_t pc;
     inputs inp;
-    
+    Predictor p;
+    //loop
     Pipeline IF_DE=fetch(inp.pc, inp.controls);
     Pipeline DE_EX=decode(inp.IF_DE, inp.controls);
     Pipeline EX_MA=execute(inp.DE_EX, inp.controls);
     Pipeline MA_WB=mem_access(inp.EX_MA, inp.controls);
     writeback(inp.MA_WB, inp.controls);
-    inp.pc.updatePC();
+    inp.pc.updatePC(p);
     inp.DE_EX=IF_DE;
     inp.DE_EX=DE_EX;
     inp.EX_MA=EX_MA;
