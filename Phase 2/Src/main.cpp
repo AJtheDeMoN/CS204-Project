@@ -1,24 +1,25 @@
 #include <iostream>
+#include "./Headers/PC.h"
+#include "./Headers/Predictor.h"
+#include "./Headers/Pipeline.h"
+#include "./Headers/Common.h"
+#include "./Headers/Fetch.h"
 using namespace std;
 
-uint8_t instruction_memory[1024];
-uint8_t memory[1024];
-
-void store_instructions(char* location){
-    FILE *inp=fopen(location, "r");
-    unsigned int address, code;
-    while(fscanf(inp, "%x %x",&address,&code)!=EOF){
-        *(uint32_t*)(instruction_memory+address)=code;
-    }
-}
-uint32_t getInstruction(int address){
-    return *(uint32_t*)(instruction_memory+address);
-}
-uint32_t getMemory(uint32_t address){
-    return *(uint32_t*)(memory+address);
-}
 int main(int argv, char** argc){
     store_instructions(argc[1]);
-    
+    uint32_t pc=-4;
+    Pipeline IF_DE, DE_EX, EX_MA, MA_WB;
+    Predictor p;
+    while(1){
+        IF_DE=fetch(pc, p);
+        //DE_MX=decode();
+        //EX_MA=execute();
+        //MA_WB=mem_access();
+        //writeback();
+        MA_WB=EX_MA;
+        EX_MA=DE_EX;
+        DE_EX=IF_DE;
+    }
     return 0;
 }
