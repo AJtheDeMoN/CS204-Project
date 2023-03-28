@@ -3,26 +3,27 @@
 #include<inttypes.h>
 class Control{
 public:
-    bool isBranch, isJump;
-//  bool isAdd, isSub, isCmp, isMul, isDiv, isMod, isLsl, isLsr, isAsr, isOr, isAnd, isNot, isMov;
-    bool isSt, isLd, isBeq, isBgt, isRet, isImmediate, isWb, isUBranch, isCall;
+    bool isBranch, memRead, memToReg, ALUop, memWrite, ALUSrc, RegWrite;
     Control(){
-        isBranch=isJump=0;
-        isSt=isLd=isBeq=isBgt=isRet=isImmediate=isWb=isUBranch=isCall=0;
-//      isAdd=isSub=isCmp=isMul=isDiv=isMod=isLsl=isLsr=isAsr=isOr=isAnd=isNot=isMov=0;
+        isBranch=memRead=memToReg=ALUop=memWrite=ALUSrc=RegWrite=0;
     }
     Control(Control &rhs){
         isBranch=rhs.isBranch;
-        isJump=rhs.isJump;
-        isSt=rhs.isSt;
-        isLd=rhs.isLd;
-        isBeq=rhs.isBeq;
-        isBgt=rhs.isBgt;
-        isRet=rhs.isRet;
-        isImmediate=rhs.isImmediate;
-        isWb=rhs.isWb;
-        isUBranch=rhs.isUBranch;
-        isCall=rhs.isCall;
+        memRead=rhs.memRead;
+        memToReg=rhs.memToReg;
+        ALUop=rhs.ALUop;
+        memWrite=rhs.memWrite;
+        ALUSrc=rhs.ALUSrc;
+        RegWrite=rhs.RegWrite;
+    }
+    void ControlUnit(uint32_t opcode){
+        isBranch=(opcode==0b1100011 || opcode==0b1101111 || opcode==0b1100111);
+        memRead=(opcode==0b0000011);
+        memToReg=(opcode==0b0000011);
+        ALUop=(opcode==0b0110011 || opcode==0b0010011);
+        memWrite=(opcode==0b0100011);
+        ALUSrc=(opcode==0b0010011 || opcode==3 || opcode==0b0100011 || opcode==0b1101111 || opcode==0b1100111);
+        RegWrite=(opcode==0b0110011 || opcode==0b0010011 || opcode==3 || opcode==0b1101111 || opcode==0b1100111 || opcode==0b0110111 || opcode==0b0010111);
     }
 };
 
@@ -31,9 +32,10 @@ public:
     uint32_t instruction, op2, A, B, branchTarget, alu_res, ld_res;
     Control controls;
     uint32_t pc;
-
+    Instruction inst;
     Pipeline(){
         instruction=op2=A=B=branchTarget=alu_res=ld_res=pc=0;
+        inst=*(new Instruction());
         controls=*(new Control());
     };
     Pipeline(Pipeline &rhs){
@@ -44,7 +46,9 @@ public:
         branchTarget=rhs.branchTarget;
         alu_res=rhs.alu_res;
         ld_res=rhs.ld_res;
-        controls=(*new Control(rhs.controls));
+        pc=rhs.pc;
+        inst=*(new Instruction(rhs.inst));
+        controls=*(new Control(rhs.controls));
     }
 };
 

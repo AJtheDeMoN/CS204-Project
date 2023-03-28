@@ -4,11 +4,6 @@
 #include "Pipeline.h"
 #include "Predictor.h"
 #include "Common.h"
-Control ControlUnit(uint32_t opcode){
-    Control ctrl;
-    
-
-}
 
 Pipeline decode(Pipeline &IF_DE){
     uint32_t inst=IF_DE.instruction;
@@ -22,8 +17,17 @@ Pipeline decode(Pipeline &IF_DE){
     decoded_inst.imm12=(inst>>20)& 0xfff;
 
     Pipeline DE_EX(IF_DE);
-    DE_EX.controls=ControlUnit(decoded_inst.opcode);
+    DE_EX.controls.ControlUnit(decoded_inst.opcode);
     DE_EX.A=registers[decoded_inst.rs1];
     DE_EX.op2=registers[decoded_inst.rs2];
+    DE_EX.inst=decoded_inst;
+    if(DE_EX.controls.ALUSrc){
+        int immx=imm_extender(inst, decoded_inst.opcode);
+        DE_EX.B=immx;
+        DE_EX.branchTarget=IF_DE.pc+immx;
+    }
+    else
+        DE_EX.B=DE_EX.op2;
+    return DE_EX;
 }   
 #endif
