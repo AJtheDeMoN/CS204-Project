@@ -4,16 +4,25 @@
 class Control{
 public:
     bool isBranch, isJump;
-    bool isRet, isSt, isLd;
+//  bool isAdd, isSub, isCmp, isMul, isDiv, isMod, isLsl, isLsr, isAsr, isOr, isAnd, isNot, isMov;
+    bool isSt, isLd, isBeq, isBgt, isRet, isImmediate, isWb, isUBranch, isCall;
     Control(){
-        isBranch=isJump=isRet=isSt=isLd=0;
+        isBranch=isJump=0;
+        isSt=isLd=isBeq=isBgt=isRet=isImmediate=isWb=isUBranch=isCall=0;
+//      isAdd=isSub=isCmp=isMul=isDiv=isMod=isLsl=isLsr=isAsr=isOr=isAnd=isNot=isMov=0;
     }
     Control(Control &rhs){
         isBranch=rhs.isBranch;
         isJump=rhs.isJump;
-        isRet=rhs.isRet;
         isSt=rhs.isSt;
         isLd=rhs.isLd;
+        isBeq=rhs.isBeq;
+        isBgt=rhs.isBgt;
+        isRet=rhs.isRet;
+        isImmediate=rhs.isImmediate;
+        isWb=rhs.isWb;
+        isUBranch=rhs.isUBranch;
+        isCall=rhs.isCall;
     }
 };
 
