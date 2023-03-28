@@ -32,15 +32,15 @@ struct Instruction{
     Instruction(){
         opcode=rd=funct3=rs1=rs2=funct7=imm12=0;
     }
-    Instruction(Instruction &rhs){
-        opcode=rhs.opcode;
-        rd=rhs.rd;
-        funct3=rhs.funct3;
-        rs1=rhs.rs1;
-        rs2=rhs.rs2;
-        funct7=rhs.funct7;
-        imm12=rhs.imm12;
-    }
+    // Instruction(Instruction &rhs){
+    //     opcode=rhs.opcode;
+    //     rd=rhs.rd;
+    //     funct3=rhs.funct3;
+    //     rs1=rhs.rs1;
+    //     rs2=rhs.rs2;
+    //     funct7=rhs.funct7;
+    //     imm12=rhs.imm12;
+    // }
 };
 
 int32_t imm_extender(uint32_t instruction, uint32_t opcode=0){

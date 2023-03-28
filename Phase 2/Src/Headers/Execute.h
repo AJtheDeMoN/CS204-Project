@@ -57,7 +57,7 @@ Pipeline execute(Pipeline &DE_EX, Predictor &p){
                 case (0b000):
                    if(DE_EX.A==DE_EX.op2){//beq
                     EX_MA.controls.isBranch=1;
-                    EX_MA.branchTarget=DE_EX.B+DE_EX.pc;
+                    EX_MA.branchTarget=(int32_t)DE_EX.B+DE_EX.pc;
                    }
                    else {
                     DE_EX.controls.isBranch=0;
@@ -125,7 +125,7 @@ Pipeline execute(Pipeline &DE_EX, Predictor &p){
             break;
     }
     
-
+    return EX_MA;
 
 }
 #endif

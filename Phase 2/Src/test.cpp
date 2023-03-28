@@ -1,15 +1,15 @@
 #include <iostream>
+#include <sstream>
 #include "./Headers/Common.h"
+#include "./Headers/Execute.h"
+#include "./Headers/Decode.h"
+#include "./Headers/Pipeline.h"
+#include "./Headers/Predictor.h"
 using namespace std;
 
 
 int main(){
-    Instruction a,b;
-    a.funct3=3, a.funct7=20;
-    b=a;
-    Instruction c(a);
-    cout<<a.funct3<<' '<<a.funct7<<'\n';
-    cout<<b.funct3<<' '<<b.funct7<<'\n';
-    cout<<c.funct3<<' '<<c.funct7<<'\n';
+    string a="i";
+    cout<<stoi(a)<<'\n';
     return 0;
 }

@@ -24,7 +24,7 @@ Pipeline decode(Pipeline &IF_DE){
     if(DE_EX.controls.ALUSrc){
         int immx=imm_extender(inst, decoded_inst.opcode);
         DE_EX.B=immx;
-        DE_EX.branchTarget=IF_DE.pc+immx;
+        // DE_EX.branchTarget=IF_DE.pc+immx;
     }
     else
         DE_EX.B=DE_EX.op2;
