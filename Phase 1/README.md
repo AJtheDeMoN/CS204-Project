@@ -14,8 +14,10 @@
 --------------------
 CS204-Project
 ##
-  | <br\>  
+  |
+  
   |- doc
+  
       |
       |- design-doc.docx
   |- src
