@@ -1,12 +1,12 @@
-========================================
+===========================================
 # Functional Simulator for RISC-V
-========================================
+===========================================
 
 ## README
 
-Table of contents
-*1. Directory Structure
-*2. How to execute
+### Table of contents
+* Directory Structure
+* How to execute
 
 
 
