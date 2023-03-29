@@ -10,7 +10,7 @@
 
 
 
-Directory Structure:
+### Directory Structure:
 --------------------
 CS204-Project
   |
