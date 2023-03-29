@@ -5,8 +5,8 @@
 ## README
 
 ### Table of contents
-* Directory Structure
-* How to execute
+- [Directory Structure](#directory-structure)
+- [How to Execute](#how-to-execute)
 
 
 
@@ -32,7 +32,7 @@ CS204-Project \
  &ensp;&ensp;&ensp;&ensp;  |- sum_of_array.mc  \
  &ensp;&ensp; |- readme.txt 
   
-How to Execute 
+### How to Execute 
 ----------
 For running programme: \
 	First, make sure tkinter library is installed for python GUI. \
