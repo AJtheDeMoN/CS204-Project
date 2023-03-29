@@ -12,7 +12,7 @@
 
 ### Directory Structure:
 --------------------
-CS204-Project
+CS204-Project **Enter**
   |
   |- doc
       |
