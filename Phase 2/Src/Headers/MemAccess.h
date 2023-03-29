@@ -6,7 +6,10 @@
 #include "Predictor.h"
 
 Pipeline mem_access(Pipeline &EX_MA){
+    
     Pipeline MA_WB(EX_MA);
+    if(EX_MA.isBubble)
+        return MA_WB;
     if(!EX_MA.controls.memRead)
         return MA_WB;
     Instruction inst=EX_MA.inst;

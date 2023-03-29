@@ -11,6 +11,20 @@
 #include "./Headers/Writeback.h"
 using namespace std;
 
+bool checkHazard(Pipeline &p1, Pipeline &p2){
+    uint32_t opcode1=p1.instruction&(0x7f);
+    uint32_t opcode2=p2.instruction&(0x7f);
+    if(opcode2==0b0100011 || opcode2==0b1100011 || opcode1==0b0110111 || opcode1==0b0010111 || opcode1==0b1101111)
+        return false;
+    uint32_t rs1=(p1.instruction>>15)&(0x1f);
+    uint32_t rs2=(p1.instruction>>20)&(0x1f);
+    uint32_t rd=(p2.instruction>>7)&(0x1f);
+
+    if(rd==rs1 || ((opcode1!=0b0010011 || opcode1!=0b0000011 || opcode1!=0b1100111) && rd==rs2)) 
+        return true;
+    return false;
+}
+
 int main(int argv, char** argc){
     vector<string> args;
     for(int i=2; i<argv; i++){
@@ -45,25 +59,57 @@ int main(int argv, char** argc){
             i--;
         }
     }  
-    store_instructions(argc[1]);
-
+    // store_instructions(argc[1]);
+    store_instructions("inst.txt");
     uint32_t pc=0;
     Pipeline IF_DE, DE_EX, EX_MA, MA_WB;
     Predictor p;
     while(1){
-        if(knobs[0]){
+        if(!knobs[0]){
             writeback(MA_WB);
             MA_WB=mem_access(EX_MA);
             EX_MA=execute(DE_EX, p);
             DE_EX=decode(IF_DE);
             IF_DE=fetch(pc, p);
-            MA_WB=EX_MA;
-            EX_MA=DE_EX;
-            DE_EX=IF_DE;
+            // MA_WB=EX_MA;
+            // EX_MA=DE_EX;
+            // DE_EX=IF_DE;
 
             pc=p.predict(pc);
-            if(MA_WB.controls.isBranch && MA_WB.branchTarget!=pc)
-                pc=MA_WB.branchTarget;
+            if(EX_MA.controls.isBranch && EX_MA.branchTarget!=pc){
+                pc=EX_MA.branchTarget;
+                IF_DE.isBubble=DE_EX.isBubble=true;
+            }
+
+            //check data hazard between new instruction and rest, implement stalling
+            int stalls=0;
+            if(checkHazard(IF_DE, DE_EX)){
+                stalls=3;
+            }
+            else if(checkHazard(IF_DE, EX_MA)){
+                stalls=2;
+            }
+            else if(checkHazard(IF_DE, MA_WB)){
+                stalls=1;
+            }
+            while(stalls--){
+                switch (stalls)
+                {
+                case 2:
+                    writeback(MA_WB);
+                    MA_WB=mem_access(EX_MA);
+                    EX_MA=execute(DE_EX, p);
+                    break;
+                case 1:
+                    writeback(MA_WB);
+                    MA_WB=mem_access(EX_MA);
+                    break;
+                case 0:
+                    writeback(MA_WB);
+                    break;
+                }
+            }
+            // implement forwarding
         }
         else{
             IF_DE=fetch(pc,p);

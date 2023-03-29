@@ -6,6 +6,9 @@
 #include "Common.h"
 
 Pipeline decode(Pipeline &IF_DE){
+    Pipeline DE_EX(IF_DE);
+    if(IF_DE.isBubble)
+        return DE_EX;
     uint32_t inst=IF_DE.instruction;
     Instruction decoded_inst;
     decoded_inst.opcode=inst & 0x7f;
@@ -16,7 +19,6 @@ Pipeline decode(Pipeline &IF_DE){
     decoded_inst.funct7=(inst>>25)& 0x7f;
     decoded_inst.imm12=(inst>>20)& 0xfff;
 
-    Pipeline DE_EX(IF_DE);
     DE_EX.controls.ControlUnit(decoded_inst.opcode);
     DE_EX.A=registers[decoded_inst.rs1];
     DE_EX.op2=registers[decoded_inst.rs2];

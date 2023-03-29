@@ -35,7 +35,8 @@ public:
     uint32_t pc;
     Instruction inst;
     
-    Pipeline():op2(0), instruction(0), A(0), B(0), branchTarget(0), alu_res(0), ld_res(0), pc(0) {
+    bool isBubble;
+    Pipeline():op2(0), instruction(0), A(0), B(0), branchTarget(0), alu_res(0), ld_res(0), pc(0), isBubble(false) {
     };
     Pipeline(Pipeline &rhs){
         instruction=rhs.instruction;
@@ -48,6 +49,7 @@ public:
         pc=rhs.pc;
         inst=rhs.inst;
         controls=Control(rhs.controls);
+        isBubble=rhs.isBubble;
     }
 };
 
