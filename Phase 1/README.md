@@ -13,11 +13,8 @@
 ### Directory Structure:
 --------------------
 CS204-Project
-##
   |
-  
   |- doc
-  
       |
       |- design-doc.docx
   |- src
