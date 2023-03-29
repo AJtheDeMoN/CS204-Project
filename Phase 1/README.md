@@ -31,9 +31,11 @@ CS204-Project \
  &ensp;&ensp;&ensp;&ensp;  |- fibonacci.mc  \
  &ensp;&ensp;&ensp;&ensp;  |- sum_of_array.mc  \
  &ensp;&ensp; |- readme.txt 
-  
-### How to Execute 
+ 
 ----------
+
+### How to Execute 
+
 For running programme: \
 	First, make sure tkinter library is installed for python GUI. \
 	Then, open terminal and run following instructions: 
