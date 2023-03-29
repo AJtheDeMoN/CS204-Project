@@ -352,6 +352,7 @@ void show_register(){
 int main(int argv, char** argc){
     store_instructions(argc[1]);
     assign_default_values();
+    uint32_t clock=0;
     // int count=0;
     while(1){
         uint32_t instruction;
@@ -367,6 +368,8 @@ int main(int argv, char** argc){
         uint32_t read,write;//memory read
         memoryRead(&decoded_instruction,&alu_result,&read,&write);
         writeback(&decoded_instruction,&alu_result,&read);//writeback
+
+        printf("Clock Cycle no. - %d\n\n\n\n", ++clock);
     }
     show_memory();
     show_register();
