@@ -12,8 +12,10 @@
 
 ### Directory Structure:
 --------------------
-CS204-Project **Enter**
+CS204-Project
+##
   |
+##  
   |- doc
       |
       |- design-doc.docx
