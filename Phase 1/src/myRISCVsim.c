@@ -353,6 +353,7 @@ int main(int argv, char** argc){
     store_instructions(argc[1]);
     assign_default_values();
     uint32_t clock=0;
+    
     // int count=0;
     while(1){
         uint32_t instruction;
