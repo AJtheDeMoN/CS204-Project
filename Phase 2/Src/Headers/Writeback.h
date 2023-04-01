@@ -8,8 +8,8 @@
 void writeback(Pipeline &MA_WB){
     if(MA_WB.isBubble)
         return;
-    if(!MA_WB.controls.memToReg && !MA_WB.controls.memWrite)
-        return;
+    // if(!MA_WB.controls.memToReg && !MA_WB.controls.memWrite)
+    //     return;
     Instruction inst=MA_WB.inst;
     switch (inst.opcode) {
         case (0b0110011): // r

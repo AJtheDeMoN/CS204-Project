@@ -10,9 +10,16 @@ Pipeline execute(Pipeline &DE_EX, Predictor &p){
     if(DE_EX.isBubble)
         return EX_MA;
     Instruction inst = DE_EX.inst;
+    if(DE_EX.controls.ALUSrc){
+        int immx=imm_extender(DE_EX.instruction, inst.opcode);
+        DE_EX.B=immx;
+        // DE_EX.branchTarget=IF_DE.pc+immx;
+    }
+    else
+        DE_EX.B=DE_EX.op2;
     switch(inst.opcode){
-        case (0b0110011):
         case (0b0010011):
+        case (0b0110011):
             switch(inst.funct3){
                 case (0b000):
                    if(inst.funct7==(0b0000000)){
@@ -22,6 +29,9 @@ Pipeline execute(Pipeline &DE_EX, Predictor &p){
                    else if(inst.funct7==(0b0100000)){
                     //sub
                     EX_MA.alu_res=DE_EX.A-DE_EX.B;
+                   }
+                   else{
+                    EX_MA.alu_res=DE_EX.A+DE_EX.B;
                    }
                    break;
                 case (0b001)://sll slli

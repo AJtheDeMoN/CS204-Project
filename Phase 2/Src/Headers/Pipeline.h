@@ -21,7 +21,7 @@ public:
         isBranch=(opcode==0b1100011 || opcode==0b1101111 || opcode==0b1100111);
         memRead=(opcode==0b0000011);
         memToReg=(opcode==0b0000011);
-        ALUop=(opcode==0b0110011 || opcode==0b0010011);
+        ALUop=(opcode==0b0110011 || opcode==0b0010011 || opcode==0b1100011);
         memWrite=(opcode==0b0100011);
         ALUSrc=(opcode==0b0010011 || opcode==3 || opcode==0b0100011|| opcode==0b1100011 || opcode==0b1101111 || opcode==0b1100111);
         RegWrite=(opcode==0b0110011 || opcode==0b0010011 || opcode==3 || opcode==0b1101111 || opcode==0b1100111 || opcode==0b0110111 || opcode==0b0010111);
@@ -35,8 +35,9 @@ public:
     uint32_t pc;
     Instruction inst;
     
-    bool isBubble;
-    Pipeline():op2(0), instruction(0), A(0), B(0), branchTarget(0), alu_res(0), ld_res(0), pc(0), isBubble(false) {
+    bool isBubble, isStalled;
+    int isStall;
+    Pipeline():op2(0), instruction(0), A(0), B(0), branchTarget(0), alu_res(0), ld_res(0), pc(0), isBubble(false), isStall(0) , isStalled(false){
     };
     Pipeline(Pipeline &rhs){
         instruction=rhs.instruction;
@@ -50,6 +51,8 @@ public:
         inst=rhs.inst;
         controls=Control(rhs.controls);
         isBubble=rhs.isBubble;
+        isStall=rhs.isStall;
+        isStalled=rhs.isStalled;
     }
 };
 
