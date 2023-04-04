@@ -8,8 +8,10 @@
 using namespace std;
 
 
-int main(){
-    string a="i";
+int main(int argv, char **argc){
+    for(int i=0; i<argv; i++)
+        cout<<argc[i]<<" \n"[i==argv-1];
+    string a="69";
     cout<<stoi(a)<<'\n';
     return 0;
 }
