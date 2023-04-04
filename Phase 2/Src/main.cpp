@@ -61,13 +61,13 @@ void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
     if(checkHazardRS1(p2,p4) && p4.controls.ALUop){
         p2.A=p4.alu_res;
     }
-    else if(checkHazardRS1(p2,p4)){
+    else if(checkHazardRS1(p2,p4) && !p4.isBubble){
         p2.A=p4.ld_res;
     }
     if(checkHazardRS2(p2,p4) && p4.controls.ALUop){
         p2.op2=p4.alu_res;
     }
-    else if(checkHazardRS2(p2,p4)){
+    else if(checkHazardRS2(p2,p4) && !p4.isBubble){
         p2.op2=p4.ld_res;
     }
     if(checkHazardRS1(p2, p3) && p3.controls.ALUop){
@@ -166,13 +166,6 @@ int main(int argv, char** argc){
                     // stalls=1;
                     IF_DE.isStall=1, IF_DE.isStalled=1;
                 }
-                // while(stalls--){
-                //     writeback(MA_WB);
-                //     MA_WB=mem_access(EX_MA);
-                //     EX_MA=execute(DE_EX, p);
-                //     DE_EX=Pipeline();
-                //     clock++;
-                // }
             }
             else{
                 // check data hazard between instructions

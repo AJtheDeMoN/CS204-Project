@@ -10,7 +10,7 @@ Pipeline mem_access(Pipeline &EX_MA){
     Pipeline MA_WB(EX_MA);
     if(EX_MA.isBubble)
         return MA_WB;
-    if(!EX_MA.controls.memRead)
+    if(!EX_MA.controls.memRead && !EX_MA.controls.memWrite)
         return MA_WB;
     Instruction inst=EX_MA.inst;
     switch(inst.opcode){
@@ -36,13 +36,13 @@ Pipeline mem_access(Pipeline &EX_MA){
         case 0b0100011:
             switch (inst.funct3) {
             case (0b000): // SB
-                memory[MA_WB.alu_res] = registers[inst.rs2] & 0b1111111;
+                memory[MA_WB.alu_res] = MA_WB.op2 & 0b1111111;
                 break;
             case (0b001): // SH
-                memory[MA_WB.alu_res] = registers[inst.rs2] & 0xffff;
+                memory[MA_WB.alu_res] = MA_WB.op2 & 0xffff;
                 break;
             case (0b010): // SW
-                memory[MA_WB.alu_res] = registers[inst.rs2];
+                memory[MA_WB.alu_res] = MA_WB.op2;
                 break;
         }
         break;
