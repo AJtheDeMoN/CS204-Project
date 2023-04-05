@@ -15,7 +15,7 @@ using namespace std;
 bool checkHazardRS1(Pipeline &in, Pipeline &out){
     uint32_t opcode1=in.instruction&(0x7f);
     uint32_t opcode2=out.instruction&(0x7f);
-    if (opcode1==0 || opcode2==0)
+    if (opcode1==0 || opcode2==0 || in.isBubble || out.isBubble)
         return false;
     if (opcode1 == 0b1101111 || opcode1 ==0b0110111 || opcode1==0b0010111)
         return false;
@@ -50,31 +50,31 @@ bool checkHazardRS2(Pipeline &in, Pipeline &out){
 void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
     // if(checkHazardRS1(p3,p4)){
     // }
-    if(checkHazardRS1(p1,p2) && p2.inst.opcode==3){
+    if(checkHazardRS1(p1,p2) && p2.inst.opcode==3 && !p2.isBubble){
         uint16_t opcode=p1.instruction&0x7f;
         bool ALUop=(opcode==0b0110011 || opcode==0b0010011 || opcode==0b1100011);
         if(ALUop && !p1.isStalled)
             p1.isStall=1, p1.isStalled=true;
     }
-    if(checkHazardRS2(p3,p4)){
+    if(checkHazardRS2(p3,p4) && !p4.isBubble){
         p3.op2=p4.ld_res;
     }
-    if(checkHazardRS1(p2,p4) && p4.controls.ALUop){
+    if(checkHazardRS1(p2,p4) && p4.controls.ALUop && !p4.isBubble){
         p2.A=p4.alu_res;
     }
     else if(checkHazardRS1(p2,p4) && !p4.isBubble){
         p2.A=p4.ld_res;
     }
-    if(checkHazardRS2(p2,p4) && p4.controls.ALUop){
+    if(checkHazardRS2(p2,p4) && p4.controls.ALUop && !p3.isBubble){
         p2.op2=p4.alu_res;
     }
     else if(checkHazardRS2(p2,p4) && !p4.isBubble){
         p2.op2=p4.ld_res;
     }
-    if(checkHazardRS1(p2, p3) && p3.controls.ALUop){
+    if(checkHazardRS1(p2, p3) && p3.controls.ALUop && !p3.isBubble){
         p2.A=p3.alu_res;
     }
-    if(checkHazardRS2(p2,p3) && p3.controls.ALUop){
+    if(checkHazardRS2(p2,p3) && p3.controls.ALUop && !p3.isBubble){
         p2.op2=p3.alu_res;
     }
 }
@@ -161,7 +161,7 @@ int main(int argv, char** argc){
             }
 
             clock++;
-            if(clock==248)
+            if(clock==95)
                 cout<<"reached";
             if(knobs[1]==1){
                 //check data hazard between new instruction and rest, implement stalling
