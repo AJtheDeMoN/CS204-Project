@@ -51,9 +51,10 @@ void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
     // if(checkHazardRS1(p3,p4)){
     // }
     if(checkHazardRS1(p1,p2) && p2.inst.opcode==3){
-        bool ALUop=((p1.instruction&0x7f)==0b0110011 || (p1.instruction&0x7f)==0b0010011);
-        if(ALUop)
-            p1.isStall=1;
+        uint16_t opcode=p1.instruction&0x7f;
+        bool ALUop=(opcode==0b0110011 || opcode==0b0010011 || opcode==0b1100011);
+        if(ALUop && !p1.isStalled)
+            p1.isStall=1, p1.isStalled=true;
     }
     if(checkHazardRS2(p3,p4)){
         p3.op2=p4.ld_res;
@@ -76,6 +77,16 @@ void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
     if(checkHazardRS2(p2,p3) && p3.controls.ALUop){
         p2.op2=p3.alu_res;
     }
+}
+void updateMem(){
+    FILE *mem=fopen("memory.txt", "w");
+    for(int i=0; i<1024; i+=4){
+        uint32_t temp=*(uint32_t*)(i+memory);
+        char str[20];
+        sprintf(str, "0x%x 0x%x\n", i, temp);
+        fputs(str, mem);
+    }
+    fclose(mem);
 }
 int main(int argv, char** argc){
     vector<string> args;
@@ -143,14 +154,15 @@ int main(int argv, char** argc){
                 IF_DE=fetch(pc, p);
                 // update pc
                 pc=p.predict(pc);
-                if(EX_MA.controls.isBranch && EX_MA.branchTarget!=DE_EX.pc){
+                if(EX_MA.controls.isBranch && !EX_MA.isBubble && EX_MA.branchTarget!=DE_EX.pc){
                     pc=EX_MA.branchTarget;
                     IF_DE.isBubble=DE_EX.isBubble=true;
                 }
             }
 
             clock++;
-
+            if(clock==248)
+                cout<<"reached";
             if(knobs[1]==1){
                 //check data hazard between new instruction and rest, implement stalling
                 int stalls=0;
@@ -171,6 +183,10 @@ int main(int argv, char** argc){
                 // check data hazard between instructions
                 // implement forwarding
                 forward(IF_DE, DE_EX, EX_MA, MA_WB);
+            }
+            if(!MA_WB.isBubble && MA_WB.inst.opcode == 0x7f ){
+                updateMem();
+                break;
             }
 
         }

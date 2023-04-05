@@ -72,7 +72,7 @@ Pipeline execute(Pipeline &DE_EX, Predictor &p){
                     EX_MA.branchTarget=(int32_t)DE_EX.B+DE_EX.pc;
                    }
                    else {
-                    EX_MA.controls.isBranch=0;
+                    EX_MA.controls.isBranch=1;
                     EX_MA.branchTarget=DE_EX.pc+4;
                    }
                    break;
@@ -83,7 +83,7 @@ Pipeline execute(Pipeline &DE_EX, Predictor &p){
                     // DE_EX.controls.
                    }
                    else {
-                    EX_MA.controls.isBranch=0;
+                    EX_MA.controls.isBranch=1;
                     EX_MA.branchTarget=DE_EX.pc+4;
                    }
                    break;
@@ -93,7 +93,7 @@ Pipeline execute(Pipeline &DE_EX, Predictor &p){
                         EX_MA.branchTarget=DE_EX.B+DE_EX.pc;
                     }
                     else {
-                    EX_MA.controls.isBranch=0;
+                    EX_MA.controls.isBranch=1;
                     EX_MA.branchTarget=DE_EX.pc+4;
                    }
                     break;
@@ -103,7 +103,7 @@ Pipeline execute(Pipeline &DE_EX, Predictor &p){
                         EX_MA.branchTarget=DE_EX.B+DE_EX.pc;
                     }
                     else {
-                    EX_MA.controls.isBranch=0;
+                    EX_MA.controls.isBranch=1;
                     EX_MA.branchTarget=DE_EX.pc+4;
                    }
                     break;   
