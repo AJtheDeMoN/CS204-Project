@@ -61,38 +61,46 @@ bool checkHazardRS2(Pipeline &in, Pipeline &out){
 }
 
 
-
+//This function forwards data between pipeline stages to avoid hazards.
 void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
     // if(checkHazardRS1(p3,p4)){
     // }
+    // Hazard detection for RS1 and stage p1-p2
     if(checkHazardRS1(p1,p2) && p2.inst.opcode==3 && !p2.isBubble){
         uint16_t opcode=p1.instruction&0x7f;
         bool ALUop=(opcode==0b0110011 || opcode==0b0010011 || opcode==0b1100011);
         if(ALUop && !p1.isStalled)
             p1.isStall=1, p1.isStalled=true;
     }
+    // Forwarding for RS2
     if(checkHazardRS2(p3,p4) && !p4.isBubble){
         p3.op2=p4.ld_res;
     }
+    
+    // Hazard detection for RS1 and stage p2-p4
     if(checkHazardRS1(p2,p4) && p4.controls.ALUop && !p4.isBubble){
         p2.A=p4.alu_res;
     }
     else if(checkHazardRS1(p2,p4) && !p4.isBubble){
         p2.A=p4.ld_res;
     }
+    // Hazard detection for RS2 and stage p2-p4
     if(checkHazardRS2(p2,p4) && p4.controls.ALUop && !p3.isBubble){
         p2.op2=p4.alu_res;
     }
     else if(checkHazardRS2(p2,p4) && !p4.isBubble){
         p2.op2=p4.ld_res;
     }
+    // Hazard detection for RS1 and stage p3-p4
     if(checkHazardRS1(p2, p3) && p3.controls.ALUop && !p3.isBubble){
         p2.A=p3.alu_res;
     }
+    // Hazard detection for RS2 and stage p3-p4
     if(checkHazardRS2(p2,p3) && p3.controls.ALUop && !p3.isBubble){
         p2.op2=p3.alu_res;
     }
 }
+
 void updateMem(){
     FILE *mem=fopen("memory.txt", "w");
     for(int i=0; i<1024; i+=4){
@@ -104,10 +112,12 @@ void updateMem(){
     fclose(mem);
 }
 int main(int argv, char** argc){
+    // Extract command line arguments
     vector<string> args;
     for(int i=2; i<argv; i++){
         args.push_back(argc[i]);
     }
+    // Initialize knob flags
     int knobs[5]{};
     //    0                 1             2          3                4
     // pipeline   stalls/forwarding  print_reg   print_pipe_all  print_pipe_x
@@ -137,14 +147,19 @@ int main(int argv, char** argc){
             i--;
         }
     }  
+    
+    // Load instructions from file
     // store_instructions(argc[1]);
     store_instructions("inst.txt");
+    // Initialize program counter and clock
     uint32_t pc=0;
     uint32_t clock=1;
+    // Initialize pipeline stages
     Pipeline IF_DE, DE_EX, EX_MA, MA_WB;
     Predictor p;
+    // Main execution loop
     while(1){
-        if(!knobs[0]){
+        if(!knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
                 MA_WB.isStall--;
             }
