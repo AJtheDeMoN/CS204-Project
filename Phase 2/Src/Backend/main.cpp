@@ -11,41 +11,56 @@
 #include "./Headers/Writeback.h"
 using namespace std;
 
-
+// This function checks for hazard between two stages in a pipeline based on their insttructions opcode and register usage
 bool checkHazardRS1(Pipeline &in, Pipeline &out){
+    //Extract opcode from the two instructions
     uint32_t opcode1=in.instruction&(0x7f);
     uint32_t opcode2=out.instruction&(0x7f);
+    //check whether any of the instruction is a bubble or NOP
     if (opcode1==0 || opcode2==0 || in.isBubble || out.isBubble)
         return false;
+    // Check if instruction1 is a JAL,LUI or AUIPC
     if (opcode1 == 0b1101111 || opcode1 ==0b0110111 || opcode1==0b0010111)
         return false;
+    // Check if instruction2 is a store or branch instruction
     if (opcode2 == 0b0100011 || opcode2 == 0b1100011)
         return false;
     
+    // Extracting the rs1 value in inst1 and destination register of inst2
     uint32_t rs1=(in.instruction>>15)&(0x1f);
     uint32_t rd=(out.instruction>>7)&(0x1f);
 
+    // Check if there is a hazard by comparing source and destination registers
     if(rs1==rd)
         return true;
     return false;
 }
+
+// This function checks for a hazard between two stages in a pipeline based on their instructions' opcode and register usage
 bool checkHazardRS2(Pipeline &in, Pipeline &out){
+    // Extract opcode from instruction
     uint32_t opcode1=in.instruction&(0x7f);
     uint32_t opcode2=out.instruction&(0x7f);
+    // Check if any of the instructions is a bubble or NOP
     if (opcode1==0 || opcode2==0)
         return false;
+    // Check if instr1 is a JAL,LUI,AUIPC,ADDI,LOAD or JALR
     if (opcode1 == 0b1101111 || opcode1 ==0b0110111 || opcode1==0b0010111 || opcode1 == 0b0010011 || opcode1 == 0b0000011 || opcode1 == 0b1100111)
         return false;
+    // Check if instruction2 is a store or branch instruction
     if (opcode2 == 0b0100011 || opcode2 == 0b1100011)
         return false;
     
+    // Extract source and destination registers from instructions
     uint32_t rs2=(in.instruction>>20)&(0x1f);
     uint32_t rd=(out.instruction>>7)&(0x1f);
-
+    // Check if there is a hazard by comparing source and destination registers
     if(rs2==rd)
         return true;
     return false;
 }
+
+
 
 void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
     // if(checkHazardRS1(p3,p4)){
