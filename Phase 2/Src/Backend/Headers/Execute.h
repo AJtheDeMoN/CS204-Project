@@ -6,6 +6,7 @@
 #include "Predictor.h"
 
 Pipeline execute(Pipeline &DE_EX, Predictor &p){
+    cout<<"IN Execute unit \n";
     Pipeline EX_MA(DE_EX);
     if(DE_EX.isBubble)
         return EX_MA;
@@ -23,6 +24,7 @@ Pipeline execute(Pipeline &DE_EX, Predictor &p){
             switch(inst.funct3){
                 case (0b000):
                    if(inst.funct7==(0b0000000)){
+                    cout<<DE_EX.A<<"+"<<DE_EX.B<<endl;
                     // add addi
                     EX_MA.alu_res=DE_EX.A+DE_EX.B;
                    }

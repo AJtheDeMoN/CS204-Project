@@ -6,6 +6,7 @@
 #include "Common.h"
 
 Pipeline decode(Pipeline &IF_DE){
+    cout<<"Decoding instruction in decode unit\n";
     Pipeline DE_EX(IF_DE);
     if(IF_DE.isBubble)
         return DE_EX;
