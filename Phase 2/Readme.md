@@ -14,9 +14,6 @@
 ----------
 CS204-Project \
 ├── Phase 2 \
-|&ensp;├── GUI MAIN<br>
-|&ensp;|&ensp;├── <br>
-|&ensp;|&ensp;└── <br>
 |&ensp;├── Src <br>
 |&ensp;|&ensp;├── Backend<br>
 |&ensp;|&ensp;|&ensp;├── Headers<br>
@@ -28,15 +25,26 @@ CS204-Project \
 |&ensp;|&ensp;|&ensp;|&ensp;├── PC.h<br>
 |&ensp;|&ensp;|&ensp;|&ensp;├── Pipeline.h<br>
 |&ensp;|&ensp;|&ensp;|&ensp;├── Predictor.h<br>
-|&ensp;|&ensp;|&ensp;|&ensp;├── test.h<br>
 |&ensp;|&ensp;|&ensp;|&ensp;└── Writeback.h<br>
 |&ensp;|&ensp;|&ensp;├── inst.txt<br>
+|&ensp;|&ensp;|&ensp;├── clock.txt<br>
 |&ensp;|&ensp;|&ensp;├── main.cpp<br>
 |&ensp;|&ensp;|&ensp;├── memory.txt<br>
 |&ensp;|&ensp;|&ensp;├── output.txt<br>
-|&ensp;|&ensp;|&ensp;├── temp.txt<br>
+|&ensp;|&ensp;|&ensp;└── register.txt<br>
+|&ensp;|&ensp;├── Frontend<br>
+|&ensp;|&ensp;|&ensp;├── _pycache_<br>
+|&ensp;|&ensp;|&ensp;├── clock.txt<br>
+|&ensp;|&ensp;|&ensp;├── function.py<br>
+|&ensp;|&ensp;|&ensp;├── gui_main.py<br>
+|&ensp;|&ensp;|&ensp;├── memory.txt<br>
+|&ensp;|&ensp;|&ensp;├── output.txt<br>
+|&ensp;|&ensp;|&ensp;└── register.txt<br>
+|&ensp;|&ensp;├── clock.txt<br>
+|&ensp;|&ensp;├── memory.txt<br>
 |&ensp;|&ensp;├── plan.png<br>
-|&ensp;|&ensp;├── plan2.txt<br>
+|&ensp;|&ensp;├── plan2.png<br>
+|&ensp;|&ensp;└── register.txt<br>
 |&ensp;├── test<br>
 |&ensp;|&ensp;├── bubblesort.mc<br>
 |&ensp;|&ensp;├── fibonacci.mc<br>
