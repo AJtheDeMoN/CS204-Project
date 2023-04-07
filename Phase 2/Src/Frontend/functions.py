@@ -53,7 +53,7 @@ def nxt_func(nxt, line, text, registers, mem):
     mem.insert(1.0, memVals)
     
 
-def run_func(content, args):
+def run_func(content,args):
     reset_txt()
     lst=['g++', '../Backend/main.cpp', '-o', 'run', '&&', 'run']
     lst.append(args[0])
@@ -159,10 +159,6 @@ def run_func(content, args):
     frame = Frame(canvas, background="#202020")
     canvas.create_window((0, 0), window=frame, anchor="center")
 
-    
-
-
-
     # Open the text file and add its contents to the frame
     with open("memory.txt") as f:
         text = f.read()
@@ -175,13 +171,6 @@ def run_func(content, args):
 
 
     ####   LINES   ######
-
-
-    # line_frame1=Frame(runwindow,bg="#282828",pady = 40,width=50) ## Right of code
-    # textline=Label(line_frame1,text="hello",bg="#282828",fg="white",font=("Comic Sans MS",16))
-    # # textline.pack(anchor="center",side="left")
-    # textline=Label(line_frame1,text="                \n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n|\n",anchor="center",bg="#282828",fg="white",font=("Comic Sans MS",16)).pack()
-    # line_frame1.grid(column=1,row=0,rowspan=20)
 
     ## Bottom of code
     line_frame2=Frame(runwindow,bg="#282828") ## Right of code
@@ -200,8 +189,6 @@ def run_func(content, args):
 
 def debug_func(content, root,location,contentmain,locationmain):
     line=[1, 0]
-    # raise_frame(root)
-    # root.delete(root)
 
     debugwindow=Toplevel(bg='#282828')
     debugwindow.geometry('1300x750')
@@ -237,7 +224,7 @@ def debug_func(content, root,location,contentmain,locationmain):
     # Resize the canvas scrollable area to match the frame's size
     frame.bind("<Configure>", lambda event, canvas=canvas: canvas.configure(scrollregion=canvas.bbox("all")))
 
-    regi.grid(row=7,column=3,columnspan=1,rowspan=4)
+    regi.grid(row=6,column=3,columnspan=1,rowspan=4)
 
     #######    Memory Grid       #######
 
@@ -269,61 +256,94 @@ def debug_func(content, root,location,contentmain,locationmain):
     # Resize the canvas scrollable area to match the frame's size
     frame.bind("<Configure>", lambda event, canvas=canvas: canvas.configure(scrollregion=canvas.bbox("all")))
 
-
-
     mem.grid(row=1,column=3,columnspan=1,rowspan=4)
 
 
     #######    Stages Grid       #######
 
-    # Open the file in read mode
-    # with open('stages.txt', 'r') as file:
-    #     # Read each line of the file
-    #     lines = file.readlines()
-
-    #     # Initialize an empty list to store integers
-    #     numbers = []
-
-    #     # Convert each line to an integer and store in the list
-    #     for line in lines:
-    #         numbers.append(int(line.strip()))
-
     stage = Frame(debugwindow,bg="#282828",width=70)
-    stage_text = Label(stage,bg="#282828",anchor="center",text = "Clock Stages", fg="white", font=("Comic Sans MS",14))
-    stage_text.pack(side="top",fill="both",)
-    canvas = Canvas(stage, background="#181818")
-    canvas.pack(side="left", fill="both", expand=True,padx=10)
+    stage_txt = Label(stage,text="PILELINE STAGES",bg="#282828",anchor="center", fg="white", font=("Comic Sans MS",14)).pack(side="top",fill="both")
 
-    # Add a scrollbar to the canvas
-    scrollbar = Scrollbar(stage, orient="vertical", command=canvas.yview)
-    scrollbar.pack(side="right", fill="y")
-
-    # Configure the canvas to work with the scrollbar
-    canvas.configure(yscrollcommand=scrollbar.set)
-
-    # Create a frame to hold the text
-    frame = Frame(canvas, background="#181818",height=800,relief=SUNKEN,width=70)
-    canvas.create_window((0, 0), window=frame, anchor="center",)
-    # mem_text = Label(mem,text = "MEMORY",bg="#282828", fg="white", font=("Comic Sans MS",12),anchor="center",pady=3).pack(side="top")
-
-    # Open the text file and add its contents to the frame
-    with open("stages.txt") as f:
-        text = f.read()
-        label = Label(frame, text=text, justify="left", wraplength=300, bg="#181818",padx=20, fg="white", font=("Comic Sans MS",12))
-        label.pack()
-
-    # Resize the canvas scrollable area to match the frame's size
-    frame.bind("<Configure>", lambda event, canvas=canvas: canvas.configure(scrollregion=canvas.bbox("all")))
+    with open('stages.txt', 'r') as f:
+    # Read the entire file as a string and split it into a list of values
+        values = f.read().split()
+        
+        # Convert the list of values to a NumPy array of integers
+        import numpy as np
+        A = np.array(values, dtype=int)
 
 
+    count = A.shape[0]/6
+    name = Frame(stage,padx=20,bg="#282828",border=3)
+    name.pack(side=TOP, fill=BOTH, expand=True)
 
-    stage.grid(row=1,column=5,columnspan=1,rowspan=4)
+    colors = ['red', 'green', 'blue', 'orange', 'purple', 'pink']
+    name1 = Label(name,text="C",padx=18,pady=4, bg=colors[0],font=("Comic Sans MS",14)).grid(row=0, column=0, sticky='nsew')
+    name2 = Label(name,text="F",padx=18,pady=4, bg=colors[1],font=("Comic Sans MS",12)).grid(row=0, column=1, sticky='nsew')
+    name3 = Label(name,text="D",padx=18,pady=4, bg=colors[2],font=("Comic Sans MS",12)).grid(row=0, column=2, sticky='nsew')
+    name4 = Label(name,text="E",padx=18,pady=4, bg=colors[3],font=("Comic Sans MS",12)).grid(row=0, column=3, sticky='nsew')
+    name5 = Label(name,text="M",padx=18,pady=4, bg=colors[4],font=("Comic Sans MS",12)).grid(row=0, column=4, sticky='nsew')
+    name6 = Label(name,text="W",padx=18,pady=4, bg=colors[5],font=("Comic Sans MS",12)).grid(row=0, column=5, sticky='nsew')
+        
 
-    # Storing data in external txt file 
-    # with open('code.txt', 'w') as f1:
-    #     f1.write(content)
+    class GridFrame(Frame):
+        def __init__(self, master, values):
+            super().__init__(master)
+            
+            # Create a Canvas widget to contain the grid
+            canvas = Canvas(self,bg="#181818",height=300)
+            canvas.pack(side=LEFT, fill=BOTH, expand=True)
+
+            # Create a Frame widget to hold the grid elements
+            self.grid_frame = Frame(canvas,padx=20,bg="#181818")
+            self.grid_frame.pack(side=TOP, fill=BOTH, expand=True)
+
+            # Attach the Frame to the Canvas
+            canvas.create_window((0,0), window=self.grid_frame, anchor=NW)
+
+            # Configure the scrollbar to control the Canvas
+            self.scrollbar = Scrollbar(self, orient=VERTICAL, command=canvas.yview)
+            self.scrollbar.pack(side=RIGHT, fill=Y)
+            canvas.configure(yscrollcommand=self.scrollbar.set,bg="#181818")
+
+            # Populate the grid with the values
+            num_rows = int(count)
+            num_cols = 6
+
+            for r in range(num_rows):
+                for c in range(num_cols):
+                    value = values[r*num_cols+c]
+                    label = Label(self.grid_frame, text=value,padx=18,pady=2, bg=colors[c],font=("Comic Sans MS",12))
+                    label.grid(row=r+1, column=c, sticky='nsew')
+
+            # Configure the grid to stretch with the window
+            for r in range(num_rows):
+                self.grid_rowconfigure(r, weight=1)
+            for c in range(num_cols):
+                self.grid_columnconfigure(c, weight=1)
+
+            # Bind the Canvas to mouse events to enable scrolling
+            def on_canvas_mousewheel(event):
+                canvas.yview_scroll(-1*int(event.delta/120), "units")
+            canvas.bind_all("<MouseWheel>", on_canvas_mousewheel)
+            
+    # Read the values from the input file
+    values = []
+    with open('stages.txt', 'r') as f:
+        for line in f:
+            values.extend([int(x) for x in line.strip().split()])
 
 
+  
+
+    # Create the GridFrame and pack it into the root window
+    grid_frame = GridFrame(stage, values)
+    grid_frame.pack(side=TOP, fill=BOTH, expand=True)
+
+    stage.grid(row=1,column=5,columnspan=1,rowspan=5)
+
+
+    ##########      Inserting code      #############
 
     codeframe = Frame(debugwindow,width=70,height=190,padx=20,bg="#282828",border=3)
     code_head=Label(codeframe,text="CODE",anchor="center",fg="white", font=("Comic Sans MS",14),bg="#282828").pack(side="top")
@@ -336,9 +356,9 @@ def debug_func(content, root,location,contentmain,locationmain):
     text_frame=Frame(debugwindow,width=70,padx=20,pady=2,bg="#282828")
     with open("hazard.txt") as f:
         text = f.read()
-        label = Label(text_frame, text=text, justify="center", wraplength=300,width=20, bg="white",fg="black", font=("Comic Sans MS",13))
+        label = Label(text_frame, text=text, justify="center", wraplength=300,width=20, bg="white",fg="black", font=("Comic Sans MS",15))
         label.pack()
-    text_frame.grid(row=9,column=0,columnspan=2)
+    text_frame.grid(row=7,column=5,columnspan=2)
 
     #Lines
     line_frame1=Frame(debugwindow,bg="#282828") ## Right of code
@@ -359,9 +379,17 @@ def debug_func(content, root,location,contentmain,locationmain):
     textline=Label(line_frame3,text="hello",bg="#282828",fg="white",font=("Comic Sans MS",16))
     # textline.pack(anchor="center",side="left")
     textline=Label(line_frame3,text="____________________________            ",anchor="center",bg="#282828",fg="white",font=("Comic Sans MS",16)).pack()
-    line_frame3.grid(column=3,row=6,columnspan=2)
+    line_frame3.grid(column=3,row=5,columnspan=2)
+    
+    ## Bottom Pipeline
+    line_frame3=Frame(debugwindow,bg="#282828") ## Right of code
+    textline=Label(line_frame3,text="hello",bg="#282828",fg="white",font=("Comic Sans MS",16))
+    # textline.pack(anchor="center",side="left")
+    textline=Label(line_frame3,text="____________________________            ",anchor="center",bg="#282828",fg="white",font=("Comic Sans MS",16)).pack()
+    line_frame3.grid(column=5,row=6,columnspan=2)
 
     ##########     Left of memory   ##########
+
     line_frame4=Frame(debugwindow,bg="#282828") ## Right of code
     textline=Label(line_frame4,text="hello",bg="#282828",fg="white",padx=10,font=("Comic Sans MS",16))
     # textline.pack(anchor="center",side="left")
@@ -397,6 +425,7 @@ def func_upload(root, f2):
     #Opens the file
     root.filename=filedialog.askopenfilename(initialdir="c:/Desktop/", title="select a dumpfile (.mc)", filetypes=[("dump files", "*.mc")])
     location=root.filename
+
     #Loads the file
     f=open(location, "r")
     content=f.read()
@@ -430,13 +459,13 @@ def func_upload(root, f2):
     c_pr = Checkbutton(box,width=16,text = "Print Registers",font=("Comic Sans MS",9),variable=var_pr,onvalue=1,offvalue=0)
     c_pr.pack()
 
-    args=[location,var_pileline, var_forwarding, var_pp, var_pr]
-    # print(args)
+
     box.grid(row=1,column=0,columnspan=2,rowspan=2)
-    # print(args[0])
+
+    args = [location,var_pileline, var_forwarding, var_pp, var_pr]
 
     #Making Button
-    btn_run=Button(below, text="Run",anchor="center",font=("Comic Sans MS",12), padx=15,border=3, bg='#151515',fg="white", command=lambda: run_func(content, args))
+    btn_run=Button(below, text="Run",anchor="center",font=("Comic Sans MS",12), padx=15,border=3, bg='#151515',fg="white", command=lambda: run_func(content,args))
     temptext = Label(below,text="CODE",fg="white",anchor="center",bg='#282828',font=("Comic Sans MS",14)).grid(row=3,column=0,columnspan=2)
     texttemp = Label(below,text=" \n\n\n\n\n\n",bg='#282828').grid(row=11,rowspan=20,column=0)
 
