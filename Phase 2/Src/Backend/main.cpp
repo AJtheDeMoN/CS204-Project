@@ -104,6 +104,26 @@ void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
         p2.op2=p3.alu_res;
     }
 }
+void print(Pipeline &p1){
+    cout<<"Instruction-> 0x"<<hex<<p1.instruction<<"\n";
+    cout<<"Op2->"<<p1.op2<<"\n";
+    cout<<"A->"<<p1.A<<"\n";
+    cout<<"B->"<<p1.B<<"\n";
+    cout<<"Branch Target->"<<p1.branchTarget<<"\n";
+    cout<<"Alu_Result->"<<p1.alu_res<<"\n";
+    cout<<"Ld_Result->"<<p1.ld_res<<"\n";
+    cout<<"PC->"<<p1.pc<<"\n";
+    cout<<"ISBubble?->"<<p1.isBubble<<"\n";
+    cout<<"IsStall?->"<<p1.isStall<<"\n";
+    cout<<"IsStalled?->"<<p1.isStalled<<"\n";
+}
+
+void print_registers(int clock){
+    cout<<"\nValues stored in registers after "<<clock<<" cycles->\n";
+    for(int i=0;i<32;i++){
+        cout<<"register["<<i<<"]-> "<<registers[i]<<"\n";
+    }
+}
 
 void updateMem(){//updating the values in memory.txt
     FILE *mem=fopen("memory.txt", "w");
@@ -187,10 +207,12 @@ int main(int argv, char** argc){
     // Main execution loop
     int NIE=0;//variables intialized to print the required data needed as per the project
     int stalls=0;
+    int alpha=0;
     int num_C_inst=0;
     int num_alu=0;
     int num_LS=0;
     int wrong_pred=0;
+    knobs[4]=20;
     while(1){
         if(knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
@@ -270,6 +292,29 @@ int main(int argv, char** argc){
                 updateClock(clock);
                 break;
             }
+            if(knobs[3]){
+                cout<<"Cycle Number-> "<<clock<<"\n";
+                cout<<"IF_DE Pipeline Register\n";print(IF_DE);cout<<"\n";
+                cout<<"DE_EX Pipeline Register\n";print(DE_EX);cout<<"\n";
+                cout<<"EX_MA Pipeline Register\n";print(EX_MA);cout<<"\n";
+                cout<<"MA_WB Pipeline Register\n";print(MA_WB);cout<<"\n";
+            }
+            if(knobs[4]==NIE-1 || alpha>0){
+                if(alpha==0){
+                cout<<"IF_DE Pipeline Register for "<<knobs[4]<<"th instruction\n";print(IF_DE);cout<<"\n";
+                }
+                else if(alpha==1){
+                cout<<"DE_EX Pipeline Register for "<<knobs[4]<<"th instruction\n";print(DE_EX);cout<<"\n";
+                }
+                else if(alpha==2){
+                cout<<"EX_MA Pipeline Register for "<<knobs[4]<<"th instruction\n";print(EX_MA);cout<<"\n";
+                }
+                else{
+                cout<<"MA_WB Pipeline Register for "<<knobs[4]<<"th instruction\n";print(MA_WB);cout<<"\n";
+                alpha=-1;
+                }
+                alpha++;
+            }
 
         }
         else{
@@ -277,12 +322,25 @@ int main(int argv, char** argc){
             clock+=5;
             IF_DE=fetch(pc,p);
             DE_EX=decode(IF_DE);
+            uint32_t opcode=DE_EX.instruction&(0x7f);
+            if(opcode==0b1100011 || opcode==0b1101111 || opcode==0b1100111|| opcode==0b0110111|| opcode==0b0010111){
+                        num_C_inst++;//counting number of control instructions
+                    }
+            else if(opcode==0b0110011 || opcode==0b0010011){
+                num_alu++;//counting number of alu instructions
+            }
+            else if(opcode==0b0000011 || opcode==0b0100011){
+                num_LS++;//counting number of load and store instructions
+            }
             if(DE_EX.inst.opcode==0x7f)
                 break;
             EX_MA=execute(DE_EX, p);
             MA_WB=mem_access(EX_MA);
             writeback(MA_WB);
             pc=p.predict(pc);
+        }
+        if(knobs[2]){
+            print_registers(clock);
         }
     }
     // Open the output file in truncate mode to clear existing contents
