@@ -159,6 +159,12 @@ int main(int argv, char** argc){
     Predictor p;
     // Main execution loop
     int NIE=0;
+    int stalls=0;
+    int num_B_inst=0;
+    if(!knobs[0]){
+        NIE=-3;
+    }
+    // knobs[0]=1;
     while(1){
         if(!knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
@@ -182,8 +188,17 @@ int main(int argv, char** argc){
             else{
                 IF_DE.isStalled=false;
                 DE_EX=decode(IF_DE);
+                uint32_t opcode=DE_EX.instruction&(0x7f);
+                if(opcode!=0){
+                    if(opcode==0b1100011){
+                        num_B_inst++;
+                    }
+                    NIE++;
+                }
+                else{
+                    stalls++;
+                }
                 IF_DE=fetch(pc, p);
-                NIE++;
                 // update pc
                 pc=p.predict(pc);
                 if(EX_MA.controls.isBranch && !EX_MA.isBubble && EX_MA.branchTarget!=DE_EX.pc){
@@ -191,22 +206,23 @@ int main(int argv, char** argc){
                     IF_DE.isBubble=DE_EX.isBubble=true;
                 }
             }
-
             clock++;
             if(knobs[1]==1){
-                //check data hazard between new instruction and rest, implement stalling
-                int stalls=0;
+                //check data hazard between new instruction and rest, implement stalling              
                 if((checkHazardRS1(IF_DE, DE_EX) || checkHazardRS2(IF_DE, DE_EX)) && IF_DE.isStalled==0){
                     // stalls=3;
                     IF_DE.isStall=3, IF_DE.isStalled=1;
+                    stalls+=3;
                 }
                 else if((checkHazardRS1(IF_DE, EX_MA) || checkHazardRS2(IF_DE, EX_MA)) && IF_DE.isStalled==0){
                     // stalls=2;
                     IF_DE.isStall=2, IF_DE.isStalled=1;
+                    stalls+=2;
                 }
                 else if((checkHazardRS1(IF_DE, MA_WB) || checkHazardRS2(IF_DE, MA_WB)) && IF_DE.isStalled==0){
                     // stalls=1;
                     IF_DE.isStall=1, IF_DE.isStalled=1;
+                    stalls+=1;
                 }
             }
             else{
@@ -232,6 +248,9 @@ int main(int argv, char** argc){
             pc=p.predict(pc);
         }
     }
-    cout<<"Number of instruction executed->"<<NIE<<"\n"<<"Clock"<<clock;
+    cout<<"Number of instruction executed-> "<<NIE<<"\n"<<"Total number of cycles-> "<<clock<<"\n";
+    cout<<"CPI-> "<<(clock/NIE)<<"\n";
+    cout<<"Total Number of stalls-> "<<stalls<<"\n";
+    cout<<"Number of branch Instructions-> "<<num_B_inst<<"\n";
     return 0;
 }
