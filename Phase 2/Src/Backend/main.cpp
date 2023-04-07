@@ -188,7 +188,7 @@ int main(int argv, char** argc){
     int num_alu=0;
     int num_LS=0;
     int wrong_pred=0;
-    knobs[4]=20;
+    // knobs[4]=0x5d;
     while(1){
         if(!knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
@@ -265,6 +265,7 @@ int main(int argv, char** argc){
                 updateMem();
                 break;
             }
+
             if(knobs[3]){
                 cout<<"Cycle Number-> "<<clock<<"\n";
                 cout<<"IF_DE Pipeline Register\n";print(IF_DE);cout<<"\n";
@@ -272,23 +273,22 @@ int main(int argv, char** argc){
                 cout<<"EX_MA Pipeline Register\n";print(EX_MA);cout<<"\n";
                 cout<<"MA_WB Pipeline Register\n";print(MA_WB);cout<<"\n";
             }
-            if(knobs[4]==NIE-1 || alpha>0){
+            if(knobs[4]==NIE || alpha>0){
                 if(alpha==0){
-                cout<<"IF_DE Pipeline Register for "<<knobs[4]<<"th instruction\n";print(IF_DE);cout<<"\n";
+                cout<<"IF_DE Pipeline Register for 0x"<<hex<<knobs[4]<<" th instruction\n";print(IF_DE);cout<<"\n";
                 }
                 else if(alpha==1){
-                cout<<"DE_EX Pipeline Register for "<<knobs[4]<<"th instruction\n";print(DE_EX);cout<<"\n";
+                cout<<"DE_EX Pipeline Register for 0x"<<knobs[4]<<" th instruction\n";print(DE_EX);cout<<"\n";
                 }
                 else if(alpha==2){
-                cout<<"EX_MA Pipeline Register for "<<knobs[4]<<"th instruction\n";print(EX_MA);cout<<"\n";
+                cout<<"EX_MA Pipeline Register for 0x"<<knobs[4]<<" th instruction\n";print(EX_MA);cout<<"\n";
                 }
                 else{
-                cout<<"MA_WB Pipeline Register for "<<knobs[4]<<"th instruction\n";print(MA_WB);cout<<"\n";
+                cout<<"MA_WB Pipeline Register for 0x"<<knobs[4]<<" th instruction\n";print(MA_WB);cout<<"\n";
                 alpha=-1;
                 }
                 alpha++;
             }
-
         }
         else{
             NIE++;
