@@ -6,11 +6,11 @@ def raise_frame(frame):
     frame.tkraise()
 
 def reset_txt():
-    reg=open('../Backend/register.txt', "w")
+    reg=open('register.txt', "w")
     for i in range(32):
         reg.write(f"0x{i} 0x0\n")
     reg.close()
-    mem=open('../Backend/memory.txt', "w")
+    mem=open('memory.txt', "w")
     for i in range(0,1024,4):
         mem.write(f"0x{i} 0x0\n")
     mem.close()
@@ -43,17 +43,18 @@ def nxt_func(nxt, line, text, registers, mem):
     if(pc!=(0xffffffff)):
         line[1]=line[0]
         line[0]=pc/4+1
-    reg=open("../Backend/register.txt", "r")
+    reg=open("register.txt", "r")
     regVals=reg.read()
     reg.close()
     registers.insert(1.0, regVals)
-    memory=open("../Backend/memory.txt", "r")
+    memory=open("memory.txt", "r")
     memVals=memory.read()
     memory.close()
     mem.insert(1.0, memVals)
     
 
 def run_func(content, args):
+    reset_txt()
     lst=['g++', '../Backend/main.cpp', '-o', 'run', '&&', 'run']
     lst.append(args[0])
     if(args[1].get()==1):
@@ -66,6 +67,7 @@ def run_func(content, args):
             lst.append('p')
         if(args[4].get()==1):
             lst.append('r')
+    print(lst)
     subprocess.run(lst, shell=True)
     runwindow=Toplevel(bg="#262626")
     runwindow.geometry('900x750')
@@ -121,7 +123,7 @@ def run_func(content, args):
     canvas.create_window((0, 0), window=frame, anchor="center")
 
     # Open the text file and add its contents to the frame
-    with open("../Backend/register.txt") as f:
+    with open("register.txt") as f:
         text = f.read()
         label = Label(frame, text=text, justify="left", wraplength=500, padx=30,pady=10,fg='white',bg="#262626", font=("Comic Sans MS", 12),anchor="center")
         label.pack()
@@ -135,7 +137,7 @@ def run_func(content, args):
     clock_frame = Frame(runwindow,width = 30,height=5,bg="white",relief=SUNKEN)
     clock_frame.grid(row=14,column=0)
     text2 = Label(clock_frame,relief=RAISED,font=("Comic Sans MS", 13),padx=30,bg="#262626",fg="white",border =3,pady=10,text="Clock ",anchor="center").pack()
-    with open("../Backend/clock.txt") as f:
+    with open("clock.txt") as f:
         text = f.read()
         label = Label(clock_frame, text=text, wraplength=500,fg='#262626',bg="white",border=3, font=("Comic Sans MS", 12),anchor="center")
         label.pack()
@@ -162,7 +164,7 @@ def run_func(content, args):
 
 
     # Open the text file and add its contents to the frame
-    with open("../Backend/memory.txt") as f:
+    with open("memory.txt") as f:
         text = f.read()
         label = Label(frame, text=text, justify="left", wraplength=500,padx= 30, bg="#262626", font=("Comic Sans MS", 12),fg="white")
         label.pack()
@@ -227,7 +229,7 @@ def debug_func(content, root,location,contentmain,locationmain):
     # regi_text = Label(regi,text = "regiORY",bg="#282828", fg="white", font=("Comic Sans MS",12),anchor="center",pady=3).pack(side="top")
 
     # Open the text file and add its contents to the frame
-    with open("../Backend/register.txt") as f:
+    with open("register.txt") as f:
         text = f.read()
         label = Label(frame, text=text, justify="left", wraplength=300, bg="#181818",padx=20, fg="white", font=("Comic Sans MS",12))
         label.pack()
@@ -259,7 +261,7 @@ def debug_func(content, root,location,contentmain,locationmain):
     # mem_text = Label(mem,text = "MEMORY",bg="#282828", fg="white", font=("Comic Sans MS",12),anchor="center",pady=3).pack(side="top")
 
     # Open the text file and add its contents to the frame
-    with open("../Backend/memory.txt") as f:
+    with open("memory.txt") as f:
         text = f.read()
         label = Label(frame, text=text, justify="left", wraplength=300, bg="#181818",padx=20, fg="white", font=("Comic Sans MS",12))
         label.pack()

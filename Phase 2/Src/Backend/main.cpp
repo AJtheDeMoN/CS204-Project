@@ -11,6 +11,7 @@
 #include "./Headers/MemAccess.h"
 #include "./Headers/Writeback.h"
 using namespace std;
+
 int data_hazard=0;
 // This function checks for hazard between two stages in a pipeline based on their insttructions opcode and register usage
 bool checkHazardRS1(Pipeline &in, Pipeline &out){
@@ -114,6 +115,26 @@ void updateMem(){//updating the values in memory.txt
     }
     fclose(mem);
 }
+void updateReg(){//updating the values in memory.txt
+    FILE *mem=fopen("register.txt", "w");
+    for(int i=0; i<32; i++){
+        // uint32_t temp=*(uint32_t*)(i+memory);
+        char str[20];
+        sprintf(str, "0x%x 0x%x\n", i, registers[i]);
+        fputs(str, mem);
+    }
+    fclose(mem);
+}
+void updateClock(uint32_t clock){
+    FILE *mem=fopen("clock.txt", "w");
+    char str[20];
+    sprintf(str, "0x%x\n", clock);
+    fputs(str, mem);
+    fclose(mem);
+}
+void assign_registers(){
+    registers[2]=0x90;
+}
 int main(int argv, char** argc){
     // Extract command line arguments
     vector<string> args;
@@ -150,10 +171,13 @@ int main(int argv, char** argc){
             i--;
         }
     }  
-    
+    for(int i=0; i<4; i++)
+        cout<<knobs[i]<<' ';
     // Load instructions from file
-    // store_instructions(argc[1]);
-    store_instructions("inst.txt");
+    store_instructions(argc[1]);
+    // cout<<"Here\n";
+    // store_instructions("C:/Users/Devanshu/Desktop/Computer/CS204 Project/CS204-Project/Phase 2/Src/Backend/inst.mc");
+    assign_registers();
     // Initialize program counter and clock
     uint32_t pc=0;
     uint32_t clock=0;
@@ -168,7 +192,7 @@ int main(int argv, char** argc){
     int num_LS=0;
     int wrong_pred=0;
     while(1){
-        if(!knobs[0]){// if pipeline mode is not turned off
+        if(knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
                 MA_WB.isStall--;
             }
@@ -216,7 +240,7 @@ int main(int argv, char** argc){
                 }
             }
             clock++;//counting number of cycles
-            if(knobs[1]==1){
+            if(!knobs[1]){
                 //check data hazard between new instruction and rest, implement stalling              
                 if((checkHazardRS1(IF_DE, DE_EX) || checkHazardRS2(IF_DE, DE_EX)) && IF_DE.isStalled==0){
                     // stalls=3;
@@ -240,7 +264,10 @@ int main(int argv, char** argc){
                 forward(IF_DE, DE_EX, EX_MA, MA_WB);
             }
             if(!MA_WB.isBubble && MA_WB.inst.opcode == 0x7f ){
+                cout<<"Here";
                 updateMem();
+                updateReg();
+                updateClock(clock);
                 break;
             }
 

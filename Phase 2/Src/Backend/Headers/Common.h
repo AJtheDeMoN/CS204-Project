@@ -6,6 +6,7 @@
 uint8_t instruction_memory[1024];
 uint8_t memory[1024];
 uint32_t registers[32];
+
 void store_instructions(char* location){
     FILE *inp=fopen(location, "r");
     unsigned int address, code;
