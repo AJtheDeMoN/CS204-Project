@@ -127,7 +127,7 @@ int main(int argv, char** argc){
         string s=args[i];
         if(s=="-p")
             knobs[0]=1;
-        else if(s=="-s")
+        else if(s=="-f")
             knobs[1]=1;
         else if(s=="-v"){
             i++;
