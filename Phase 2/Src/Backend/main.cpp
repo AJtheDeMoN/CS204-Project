@@ -183,11 +183,12 @@ int main(int argv, char** argc){
     // Main execution loop
     int NIE=0;//variables intialized to print the required data needed as per the project
     int stalls=0;
+    int alpha=0;
     int num_C_inst=0;
     int num_alu=0;
     int num_LS=0;
     int wrong_pred=0;
-    // knobs[2]=1;
+    knobs[4]=20;
     while(1){
         if(!knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
@@ -270,7 +271,22 @@ int main(int argv, char** argc){
                 cout<<"DE_EX Pipeline Register\n";print(DE_EX);cout<<"\n";
                 cout<<"EX_MA Pipeline Register\n";print(EX_MA);cout<<"\n";
                 cout<<"MA_WB Pipeline Register\n";print(MA_WB);cout<<"\n";
-
+            }
+            if(knobs[4]==NIE-1 || alpha>0){
+                if(alpha==0){
+                cout<<"IF_DE Pipeline Register for "<<knobs[4]<<"th instruction\n";print(IF_DE);cout<<"\n";
+                }
+                else if(alpha==1){
+                cout<<"DE_EX Pipeline Register for "<<knobs[4]<<"th instruction\n";print(DE_EX);cout<<"\n";
+                }
+                else if(alpha==2){
+                cout<<"EX_MA Pipeline Register for "<<knobs[4]<<"th instruction\n";print(EX_MA);cout<<"\n";
+                }
+                else{
+                cout<<"MA_WB Pipeline Register for "<<knobs[4]<<"th instruction\n";print(MA_WB);cout<<"\n";
+                alpha=-1;
+                }
+                alpha++;
             }
 
         }
