@@ -14,35 +14,35 @@
 ----------
 CS204-Project \
 ├── Phase 2 \
-| ├── GUI MAIN<br>
-| |   ├── <br>
-| |   └── <br>
-| ├── Src <br>
-| |   ├── Backend<br>
-| |   |   ├── Headers<br>
-| |   |   |   ├── Common.h<br>
-| |   |   |   ├── Decode.h<br>
-| |   |   |   ├── Execute.h<br>
-| |   |   |   ├── Fetch.h<br>
-| |   |   |   ├── MeMAccess.h<br>
-| |   |   |   ├── PC.h<br>
-| |   |   |   ├── Pipeline.h<br>
-| |   |   |   ├── Predictor.h<br>
-| |   |   |   ├── test.h<br>
-| |   |   |   └── Writeback.h<br>
-| |   |   ├── inst.txt<br>
-| |   |   ├── main.cpp<br>
-| |   |   ├── memory.txt<br>
-| |   |   ├── output.txt<br>
-| |   |   ├── temp.txt<br>
-| |   ├── plan.png<br>
-| |   ├── plan2.txt<br>
-| ├── test<br>
-| |   ├── bubblesort.mc<br>
-| |   ├── fibonacci.mc<br>
-| |   ├── simple_add.mc<br>
-| |   └── sum_of_array.mc<br>
-| └── Readme.md<br>
+|&ensp;├── GUI MAIN<br>
+|&ensp;|&ensp;├── <br>
+|&ensp;|&ensp;└── <br>
+|&ensp;├── Src <br>
+|&ensp;|&ensp;├── Backend<br>
+|&ensp;|&ensp;|&ensp;├── Headers<br>
+|&ensp;|&ensp;|&ensp;|&ensp;├── Common.h<br>
+|&ensp;|&ensp;|&ensp;|&ensp;├── Decode.h<br>
+|&ensp;|&ensp;|&ensp;|&ensp;├── Execute.h<br>
+|&ensp;|&ensp;|&ensp;|&ensp;├── Fetch.h<br>
+|&ensp;|&ensp;|&ensp;|&ensp;├── MeMAccess.h<br>
+|&ensp;|&ensp;|&ensp;|&ensp;├── PC.h<br>
+|&ensp;|&ensp;|&ensp;|&ensp;├── Pipeline.h<br>
+|&ensp;|&ensp;|&ensp;|&ensp;├── Predictor.h<br>
+|&ensp;|&ensp;|&ensp;|&ensp;├── test.h<br>
+|&ensp;|&ensp;|&ensp;|&ensp;└── Writeback.h<br>
+|&ensp;|&ensp;|&ensp;├── inst.txt<br>
+|&ensp;|&ensp;|&ensp;├── main.cpp<br>
+|&ensp;|&ensp;|&ensp;├── memory.txt<br>
+|&ensp;|&ensp;|&ensp;├── output.txt<br>
+|&ensp;|&ensp;|&ensp;├── temp.txt<br>
+|&ensp;|&ensp;├── plan.png<br>
+|&ensp;|&ensp;├── plan2.txt<br>
+|&ensp;├── test<br>
+|&ensp;|&ensp;├── bubblesort.mc<br>
+|&ensp;|&ensp;├── fibonacci.mc<br>
+|&ensp;|&ensp;├── simple_add.mc<br>
+|&ensp;|&ensp;└── sum_of_array.mc<br>
+|&ensp;└── Readme.md<br>
 └─ .gitignore \
 
 ----------
