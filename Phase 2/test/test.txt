@@ -1,0 +1,75 @@
+addi x3, zero, 5  # x3=N=5
+addi x6, zero, 0x100  # seed = 0x100
+slli x6, x6, 20  # seed = 0x10000000
+addi x7, zero, 0x100  # array
+add x8, x7, x7  # sorted array = 0x10002000
+jal x0, .main
+.random:
+    add x9, zero, x6  # x = seed
+    add x10, zero, x9  # x10 = x
+    slli x9, x9, 21  # x<<21
+    xor x9, x10, x9  # x10^x9
+    sub x10, x10, x10  # x10 = 0
+    add x10, zero, x9  # x10 = x
+    srli x9, x9, 15  # x>>15
+    xor x9, x10, x9  # x10^x
+    sub x10, x10, x10  # x10 = 0
+    add x10, zero, x9  # x10 = x
+    slli x9, x9, 4  # x<<4
+    xor x9, x10, x9  # x^x
+    sub x6, x6, x6  # seed = 0
+    add x6, x6, x9  # seed = x 
+    jalr x0 0(x1)
+.swap:
+    add x11, zero, x21  # a = SortedArray[i]
+    add x21, zero, x22  # SortedArray[i] = SortedArray[j];
+    add x22, zero, x11 # SortedArray[j] = a;
+    sw x21, 0(x19)  # store word
+    sw x22, 0(x20)  # store word
+    addi x13, x13, 1  #j++
+    beq x0, x0, loop2  #just to repeat loop2
+.main:
+    addi x12, zero, 0  # i=0
+    loop:
+	ble x3, x12, loop_end  #loop exit condition
+        # Following is the loop
+        jal x1 .random
+        add x17, zero, x12  #x17=i
+        slli x17, x17, 2  #x17=i*4
+        add x17, x17, x7  #x17=i*4+array[i]
+        sw x9, 0(x17)  # store word x17 = random()
+        add x18, zero, x12  #x18=i
+        slli x18, x18, 2  #x18=i*4
+        add x18, x18, x8  #x17=i*4+stored_array[i]
+        sw x9, 0(x18)  # store word x18 = random()
+	addi x12, x12, 1  #i++
+	beq x0, x0, loop  #just to repeat loop
+	loop_end:
+.bubble_sort:
+    addi x12, zero, 0  # i=0
+    loop1:
+	ble x3, x12, loop1_end  #loop1 exit condition
+	# Following is the loop
+        addi x13, zero, 0  # j=0
+        add x14, x0, x3  #x14=n
+        addi x14, x14, -1  #x14=n-1 
+        sub x14, x14, x12  #x14=n-i-1
+        loop2:
+            ble x14, x13, loop2_end  #loop2 exit condition
+            # Following is the loop
+            add x19, zero, x13  #x19=j
+            slli x19, x19, 2  #x19=j*4
+            add x19, x19, x8  #x19=j*4+sorted_array[j]
+            lw x21, 0(x19) # load word
+            add x20, zero, x13  #x20=j
+            slli x20, x20, 2  #x20=j*4
+            addi x20, x20, 4  #x20=(j+1)*4
+            add x20, x20, x8  #x20=(j+1)*4+sorted_array[j]
+            lw x22, 0(x20) # load word
+            bgt x21, x22, .swap  ## if-condition
+            addi x13, x13, 1  #j++
+            beq x0, x0, loop2  #just to repeat loop2
+        loop2_end:
+	addi x12, x12, 1  #i++
+	beq x0, x0, loop1  #just to repeat loop1
+        loop1_end:
