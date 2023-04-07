@@ -10,7 +10,7 @@
 #include "./Headers/MemAccess.h"
 #include "./Headers/Writeback.h"
 using namespace std;
-
+int data_hazard=0;
 // This function checks for hazard between two stages in a pipeline based on their insttructions opcode and register usage
 bool checkHazardRS1(Pipeline &in, Pipeline &out){
     //Extract opcode from the two instructions
@@ -31,8 +31,9 @@ bool checkHazardRS1(Pipeline &in, Pipeline &out){
     uint32_t rd=(out.instruction>>7)&(0x1f);
 
     // Check if there is a hazard by comparing source and destination registers
-    if(rs1==rd)
-        return true;
+    if(rs1==rd){
+        data_hazard++;
+        return true;}
     return false;
 }
 
@@ -55,8 +56,9 @@ bool checkHazardRS2(Pipeline &in, Pipeline &out){
     uint32_t rs2=(in.instruction>>20)&(0x1f);
     uint32_t rd=(out.instruction>>7)&(0x1f);
     // Check if there is a hazard by comparing source and destination registers
-    if(rs2==rd)
-        return true;
+    if(rs2==rd){
+        data_hazard++;
+        return true;}
     return false;
 }
 
@@ -101,7 +103,7 @@ void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
     }
 }
 
-void updateMem(){
+void updateMem(){//updating the values in memory.txt
     FILE *mem=fopen("memory.txt", "w");
     for(int i=0; i<1024; i+=4){
         uint32_t temp=*(uint32_t*)(i+memory);
@@ -121,7 +123,7 @@ int main(int argv, char** argc){
     int knobs[5]{};
     //    0                 1             2          3                4
     // pipeline   stalls/forwarding  print_reg   print_pipe_all  print_pipe_x
-    for(int i=0; i<args.size(); i++){
+    for(int i=0; i<args.size(); i++){//setting the knob values
         string s=args[i];
         if(s=="-p")
             knobs[0]=1;
@@ -153,18 +155,17 @@ int main(int argv, char** argc){
     store_instructions("inst.txt");
     // Initialize program counter and clock
     uint32_t pc=0;
-    uint32_t clock=1;
+    uint32_t clock=0;
     // Initialize pipeline stages
     Pipeline IF_DE, DE_EX, EX_MA, MA_WB;
     Predictor p;
     // Main execution loop
-    int NIE=0;
+    int NIE=0;//variables intialized to print the required data needed as per the project
     int stalls=0;
-    int num_B_inst=0;
-    if(!knobs[0]){
-        NIE=-3;
-    }
-    // knobs[0]=1;
+    int num_C_inst=0;
+    int num_alu=0;
+    int num_LS=0;
+    int wrong_pred=0;
     while(1){
         if(!knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
@@ -189,24 +190,31 @@ int main(int argv, char** argc){
                 IF_DE.isStalled=false;
                 DE_EX=decode(IF_DE);
                 uint32_t opcode=DE_EX.instruction&(0x7f);
-                if(opcode!=0){
-                    if(opcode==0b1100011){
-                        num_B_inst++;
+                if(!DE_EX.isBubble){//if instruction is not a bubble
+                    if(opcode==0b1100011 || opcode==0b1101111 || opcode==0b1100111|| opcode==0b0110111|| opcode==0b0010111){
+                        num_C_inst++;//counting number of control instructions
                     }
-                    NIE++;
+                    else if(opcode==0b0110011 || opcode==0b0010011){
+                        num_alu++;//counting number of alu instructions
+                    }
+                    else if(opcode==0b0000011 || opcode==0b0100011){
+                        num_LS++;//counting number of load and store instructions
+                    }
+                    NIE++;//counting total number of instrutctions
                 }
-                else{
-                    stalls++;
+                if(DE_EX.isBubble){
+                    stalls++;//counting number of stalls
                 }
                 IF_DE=fetch(pc, p);
                 // update pc
                 pc=p.predict(pc);
-                if(EX_MA.controls.isBranch && !EX_MA.isBubble && EX_MA.branchTarget!=DE_EX.pc){
+                if(EX_MA.controls.isBranch && !EX_MA.isBubble && EX_MA.branchTarget!=DE_EX.pc){//if predicted and target value didn't match then stall
                     pc=EX_MA.branchTarget;
                     IF_DE.isBubble=DE_EX.isBubble=true;
+                    wrong_pred++;
                 }
             }
-            clock++;
+            clock++;//counting number of cycles
             if(knobs[1]==1){
                 //check data hazard between new instruction and rest, implement stalling              
                 if((checkHazardRS1(IF_DE, DE_EX) || checkHazardRS2(IF_DE, DE_EX)) && IF_DE.isStalled==0){
@@ -238,6 +246,7 @@ int main(int argv, char** argc){
         }
         else{
             NIE++;
+            clock+=5;
             IF_DE=fetch(pc,p);
             DE_EX=decode(IF_DE);
             if(DE_EX.inst.opcode==0x7f)
@@ -248,9 +257,17 @@ int main(int argv, char** argc){
             pc=p.predict(pc);
         }
     }
-    cout<<"Number of instruction executed-> "<<NIE<<"\n"<<"Total number of cycles-> "<<clock<<"\n";
-    cout<<"CPI-> "<<(clock/NIE)<<"\n";
-    cout<<"Total Number of stalls-> "<<stalls<<"\n";
-    cout<<"Number of branch Instructions-> "<<num_B_inst<<"\n";
+    cout<<"Number of instruction executed         -> "<<NIE<<"\n";
+    cout<<"Total number of cycles                 -> "<<clock<<"\n";
+    cout<<"CPI                                    -> "<<(float(clock)/NIE)<<"\n";
+    cout<<"Total Number of stalls                 -> "<<stalls<<"\n";
+    cout<<"Number of control Instructions         -> "<<num_C_inst<<"\n";
+    cout<<"Number of ALU Instructions             -> "<<num_alu<<"\n";
+    cout<<"Number of load/store Instructions      -> "<<num_LS<<"\n";
+    cout<<"Number of branch mispredictions        -> "<<wrong_pred<<"\n";
+    cout<<"Number of data hazards                 -> "<<data_hazard<<"\n";
+    cout<<"Number of control hazards              -> "<<wrong_pred<<"\n";
+    cout<<"Number of stalls due to data hazards   -> "<<stalls-wrong_pred<<"\n";
+    cout<<"Number of stalls due to control hazards-> "<<wrong_pred<<"\n";
     return 0;
 }
