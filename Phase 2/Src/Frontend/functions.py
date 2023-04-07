@@ -31,12 +31,8 @@ def nxt_func(nxt, line, text, registers, mem):
     
     args=text.get(idx,idx+1).split(' ')
     print(args)
-    terminal=""
-    if(idx==1.0):
-        terminal=subprocess.run(['gcc', 'myRISCVdebug.c', '-o', 'debug', '&&', 'debug', args[0], args[1]],stdout=subprocess.PIPE, shell=True)
-        reset_txt()
-    else:
-        terminal=subprocess.run(['debug', args[0], args[1]],stdout=subprocess.PIPE, shell=True)
+    # terminal=subprocess.run(['gcc', 'myRISCVdebug.c', '-o', 'debug', '&&', 'debug', args[0], args[1]],stdout=subprocess.PIPE, shell=True)
+    terminal=subprocess.run(['debug', args[0], args[1]],stdout=subprocess.PIPE, shell=True)
 
     pc=int(terminal.stdout.decode(), 16)
     print(pc)
@@ -187,7 +183,9 @@ def run_func(content,args):
     line_frame3.grid(column=2,row=8,columnspan=1)
 
 
-def debug_func(content, root,location,contentmain,locationmain):
+def debug_func(content, root,location,contentmain,locationmain,args):
+    reset_txt()
+    subprocess.run(['g++', '../Backend/debug.cpp', '-o', 'debug'], shell=True)
     line=[1, 0]
 
     debugwindow=Toplevel(bg='#282828')
@@ -399,7 +397,7 @@ def debug_func(content, root,location,contentmain,locationmain):
 
     # Button Frame ###   Creating buttons
     buttonframe = Frame(debugwindow,width=70,bg="#282828")
-    btn_run=Button(buttonframe, text="Run",font=("Comic Sans MS",12), padx=10,bg='#181818',relief=SUNKEN,fg="white", command=lambda: run_func_debug(location,content,debugwindow))
+    btn_run=Button(buttonframe, text="Run",font=("Comic Sans MS",12), padx=10,bg='#181818',relief=SUNKEN,fg="white", command=lambda: run_func_debug(args,content,debugwindow))
     btn_run.pack(anchor="center",padx=5,side="left",pady=20)
     btn_nxt=Button(buttonframe, text="Step",width=8, padx=10,font=("Comic Sans MS",12),fg="white",bg="#181818", command=lambda: nxt_func(btn_nxt, line, code, regi, mem))
     btn_nxt.pack(anchor="center",padx=5,side="left",pady=20)
@@ -410,9 +408,9 @@ def debug_func(content, root,location,contentmain,locationmain):
     print('debugging')
 
 
-def run_func_debug(location,content,debugwindow):
+def run_func_debug(args,content,debugwindow):
     debugwindow.after(100,debugwindow.destroy)
-    run_func(location,content)
+    run_func(content, args)
 
 #ef debug_func(content, root,location,contentmain,locationmain):
 def reset_func(debug,root,contentmain,locationmain):
@@ -470,7 +468,7 @@ def func_upload(root, f2):
     texttemp = Label(below,text=" \n\n\n\n\n\n",bg='#282828').grid(row=11,rowspan=20,column=0)
 
     #Making Button
-    btn_debug=Button(below, text="Debug",anchor="center",font=("Comic Sans MS",12),border=3,bg='#151515',fg="white", padx=15, command=lambda: debug_func(content,f2,location,content,location))
+    btn_debug=Button(below, text="Debug",anchor="center",font=("Comic Sans MS",12),border=3,bg='#151515',fg="white", padx=15, command=lambda: debug_func(content,f2,location,content,location, args))
     code.insert(1.0, content)
     code.grid(row=4,column=0,columnspan=2)
     btn_run.grid(row=0, column=0)
