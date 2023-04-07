@@ -191,7 +191,7 @@ def debug_func(content, root,location,contentmain,locationmain):
     line=[1, 0]
 
     debugwindow=Toplevel(bg='#282828')
-    debugwindow.geometry('1300x750')
+    debugwindow.attributes("-fullscreen", True)
 
     debugwindow.title('Debugging')
 
