@@ -223,6 +223,8 @@ int main(int argv, char** argc){
         else{
             IF_DE=fetch(pc,p);
             DE_EX=decode(IF_DE);
+            if(DE_EX.inst.opcode==0x7f)
+                break;
             EX_MA=execute(DE_EX, p);
             MA_WB=mem_access(EX_MA);
             writeback(MA_WB);
