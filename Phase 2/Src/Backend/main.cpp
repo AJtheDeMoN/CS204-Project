@@ -158,6 +158,7 @@ int main(int argv, char** argc){
     Pipeline IF_DE, DE_EX, EX_MA, MA_WB;
     Predictor p;
     // Main execution loop
+    int NIE=0;
     while(1){
         if(!knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
@@ -182,6 +183,7 @@ int main(int argv, char** argc){
                 IF_DE.isStalled=false;
                 DE_EX=decode(IF_DE);
                 IF_DE=fetch(pc, p);
+                NIE++;
                 // update pc
                 pc=p.predict(pc);
                 if(EX_MA.controls.isBranch && !EX_MA.isBubble && EX_MA.branchTarget!=DE_EX.pc){
@@ -191,8 +193,6 @@ int main(int argv, char** argc){
             }
 
             clock++;
-            if(clock==95)
-                cout<<"reached";
             if(knobs[1]==1){
                 //check data hazard between new instruction and rest, implement stalling
                 int stalls=0;
@@ -221,6 +221,7 @@ int main(int argv, char** argc){
 
         }
         else{
+            NIE++;
             IF_DE=fetch(pc,p);
             DE_EX=decode(IF_DE);
             if(DE_EX.inst.opcode==0x7f)
@@ -231,5 +232,6 @@ int main(int argv, char** argc){
             pc=p.predict(pc);
         }
     }
+    cout<<"Number of instruction executed->"<<NIE<<"\n"<<"Clock"<<clock;
     return 0;
 }
