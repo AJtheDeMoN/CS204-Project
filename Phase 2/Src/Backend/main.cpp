@@ -332,8 +332,13 @@ int main(int argv, char** argc){
             else if(opcode==0b0000011 || opcode==0b0100011){
                 num_LS++;//counting number of load and store instructions
             }
-            if(DE_EX.inst.opcode==0x7f)
+            if(DE_EX.inst.opcode==0x7f){
+                updateMem();
+                updateReg();
+                updateClock(clock);
+
                 break;
+            }
             EX_MA=execute(DE_EX, p);
             MA_WB=mem_access(EX_MA);
             writeback(MA_WB);

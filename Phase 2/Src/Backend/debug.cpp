@@ -109,6 +109,100 @@ void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
 void assign_registers(){
     registers[2]=0x90;
 }
+void getPipe(FILE *P, Pipeline &p){
+    unsigned int a;
+    int i=0;
+    while(fscanf(P, "%x",&a)!=EOF){
+        switch (i)
+        {
+        case 0:
+            p.instruction=a;
+            break;
+        case 1:
+            p.op2=a;
+            break;
+        case 2:
+            p.A=a;
+            break;
+        case 3:
+            p.B=a;
+            break;
+        case 4:
+            p.branchTarget=a;
+            break;
+        case 5:
+            p.alu_res=a;
+            break;
+        case 6:
+            p.ld_res=a;
+            break;
+        case 7:
+            p.pc=a;
+            break;
+        case 8:
+            p.branchTarget=a;
+            break;
+        case 9:
+            p.inst.opcode=a;
+        case 10:
+            p.inst.rd=a;
+        case 11:
+            p.inst.funct3=a;
+        case 12:
+            p.inst.rs1=a;
+        case 13:
+            p.inst.rs2=a;
+        case 14:
+            p.inst.funct7=a;
+        case 15:
+            p.inst.imm12=a;
+        case 16:
+            p.controls.isBranch=a;
+        case 17:
+            p.controls.memRead=a;
+        case 18:
+            p.controls.memToReg=a;
+        case 19:
+            p.controls.ALUop=a;
+        case 20:
+            p.controls.memWrite=a;
+        case 21:
+            p.controls.ALUSrc=a;
+        case 22:
+            p.controls.RegWrite=a;
+        case 23:
+            p.isBubble=a;
+        case 24:
+            p.isStall=a;
+        case 25:
+            p.isStalled=a;
+        default:
+            break;
+        }
+        i++;
+    }
+}
+void getPipes(Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
+    FILE *Pipe1=fopen("p1.txt", "r");
+    FILE *Pipe2=fopen("p2.txt", "r");
+    FILE *Pipe3=fopen("p3.txt", "r");
+    FILE *Pipe4=fopen("p4.txt", "r");
+    getPipe(Pipe1, p1);
+    getPipe(Pipe2, p2);
+    getPipe(Pipe3, p3);
+    getPipe(Pipe4, p4);
+    fclose(Pipe1);
+    fclose(Pipe2);
+    fclose(Pipe3);
+    fclose(Pipe4);
+}
+void getPredictor(Predictor &p){
+    FILE* P=fopen("predictor.txt", "r");
+    unsigned int add1, add2;
+    while(fscanf(P, "%x %x",&add1,&add2)!=EOF){
+        p.insert(add1, add2);
+    }
+}
 int main(int argv, char** argc){
     // Extract command line arguments
     vector<string> args;
@@ -148,17 +242,18 @@ int main(int argv, char** argc){
     // for(int i=0; i<4; i++)
     //     cout<<knobs[i]<<' ';
     // Load instructions from file
-    store_instructions(argc[1]);
+    // store_instructions();
     // cout<<"Here\n";
     // store_instructions("C:/Users/Devanshu/Desktop/Computer/CS204 Project/CS204-Project/Phase 2/Src/Backend/inst.mc");
-    assign_registers();
+    // assign_registers();
     // Initialize program counter and clock
     uint32_t pc=0;
     uint32_t clock=0;
     // Initialize pipeline stages
     Pipeline IF_DE, DE_EX, EX_MA, MA_WB;
     Predictor p;
-    // Main execution loop
+    getPipes(IF_DE, DE_EX, EX_MA, MA_WB);
+    getPredictor(p);
     int NIE=0;//variables intialized to print the required data needed as per the project
     int stalls=0;
     int alpha=0;
@@ -168,104 +263,76 @@ int main(int argv, char** argc){
     int wrong_pred=0;
     // knobs[4]=20;
     {
-        if(knobs[0]){// if pipeline mode is not turned off
-            if(MA_WB.isStall>0){
-                MA_WB.isStall--;
-            }
-            else
-                MA_WB.isStalled=false;
-                writeback(MA_WB);
-            if(EX_MA.isStall>0)
-                EX_MA.isStall--;
-            else
-                EX_MA.isStalled=false;
-                MA_WB=mem_access(EX_MA);
-            if(DE_EX.isStall>0)
-                DE_EX.isStall--;
-            else
-                DE_EX.isStalled=false;  
-                EX_MA=execute(DE_EX, p);
-            if(IF_DE.isStall>0)
-                IF_DE.isStall--;
-            else{
-                IF_DE.isStalled=false;
-                DE_EX=decode(IF_DE);
-                uint32_t opcode=DE_EX.instruction&(0x7f);
-                if(!DE_EX.isBubble){//if instruction is not a bubble
-                    if(opcode==0b1100011 || opcode==0b1101111 || opcode==0b1100111|| opcode==0b0110111|| opcode==0b0010111){
-                        num_C_inst++;//counting number of control instructions
-                    }
-                    else if(opcode==0b0110011 || opcode==0b0010011){
-                        num_alu++;//counting number of alu instructions
-                    }
-                    else if(opcode==0b0000011 || opcode==0b0100011){
-                        num_LS++;//counting number of load and store instructions
-                    }
-                    NIE++;//counting total number of instrutctions
-                }
-                if(DE_EX.isBubble){
-                    stalls++;//counting number of stalls
-                }
-                IF_DE=fetch(pc, p);
-                // update pc
-                pc=p.predict(pc);
-                if(EX_MA.controls.isBranch && !EX_MA.isBubble && EX_MA.branchTarget!=DE_EX.pc){//if predicted and target value didn't match then stall
-                    pc=EX_MA.branchTarget;
-                    IF_DE.isBubble=DE_EX.isBubble=true;
-                    wrong_pred++;
-                }
-            }
-            clock++;//counting number of cycles
-            if(!knobs[1]){
-                //check data hazard between new instruction and rest, implement stalling              
-                if((checkHazardRS1(IF_DE, DE_EX) || checkHazardRS2(IF_DE, DE_EX)) && IF_DE.isStalled==0){
-                    // stalls=3;
-                    IF_DE.isStall=3, IF_DE.isStalled=1;
-                    stalls+=3;
-                }
-                else if((checkHazardRS1(IF_DE, EX_MA) || checkHazardRS2(IF_DE, EX_MA)) && IF_DE.isStalled==0){
-                    // stalls=2;
-                    IF_DE.isStall=2, IF_DE.isStalled=1;
-                    stalls+=2;
-                }
-                else if((checkHazardRS1(IF_DE, MA_WB) || checkHazardRS2(IF_DE, MA_WB)) && IF_DE.isStalled==0){
-                    // stalls=1;
-                    IF_DE.isStall=1, IF_DE.isStalled=1;
-                    stalls+=1;
-                }
-            }
-            else{
-                // check data hazard between instructions
-                // implement forwarding
-                forward(IF_DE, DE_EX, EX_MA, MA_WB);
-            }
-            if(!MA_WB.isBubble && MA_WB.inst.opcode == 0x7f ){
-                // cout<<"Here";
-            }
-
+        // if pipeline mode is not turned off
+        if(MA_WB.isStall>0){
+            MA_WB.isStall--;
         }
+        else
+            MA_WB.isStalled=false;
+            writeback(MA_WB);
+        if(EX_MA.isStall>0)
+            EX_MA.isStall--;
+        else
+            EX_MA.isStalled=false;
+            MA_WB=mem_access(EX_MA);
+        if(DE_EX.isStall>0)
+            DE_EX.isStall--;
+        else
+            DE_EX.isStalled=false;  
+            EX_MA=execute(DE_EX, p);
+        if(IF_DE.isStall>0)
+            IF_DE.isStall--;
         else{
-            NIE++;
-            clock+=5;
-            IF_DE=fetch(pc,p);
+            IF_DE.isStalled=false;
             DE_EX=decode(IF_DE);
             uint32_t opcode=DE_EX.instruction&(0x7f);
-            if(opcode==0b1100011 || opcode==0b1101111 || opcode==0b1100111|| opcode==0b0110111|| opcode==0b0010111){
-                        num_C_inst++;//counting number of control instructions
-                    }
-            else if(opcode==0b0110011 || opcode==0b0010011){
-                num_alu++;//counting number of alu instructions
+            if(!DE_EX.isBubble){//if instruction is not a bubble
+                if(opcode==0b1100011 || opcode==0b1101111 || opcode==0b1100111|| opcode==0b0110111|| opcode==0b0010111){
+                    num_C_inst++;//counting number of control instructions
+                }
+                else if(opcode==0b0110011 || opcode==0b0010011){
+                    num_alu++;//counting number of alu instructions
+                }
+                else if(opcode==0b0000011 || opcode==0b0100011){
+                    num_LS++;//counting number of load and store instructions
+                }
+                NIE++;//counting total number of instrutctions
             }
-            else if(opcode==0b0000011 || opcode==0b0100011){
-                num_LS++;//counting number of load and store instructions
+            if(DE_EX.isBubble){
+                stalls++;//counting number of stalls
             }
-            if(DE_EX.inst.opcode==0x7f){
-                
-            }
-            EX_MA=execute(DE_EX, p);
-            MA_WB=mem_access(EX_MA);
-            writeback(MA_WB);
+            IF_DE=fetch(pc, p);
+            // update pc
             pc=p.predict(pc);
+            if(EX_MA.controls.isBranch && !EX_MA.isBubble && EX_MA.branchTarget!=DE_EX.pc){//if predicted and target value didn't match then stall
+                pc=EX_MA.branchTarget;
+                IF_DE.isBubble=DE_EX.isBubble=true;
+                wrong_pred++;
+            }
+        }
+        clock++;//counting number of cycles
+        if(!knobs[1]){
+            //check data hazard between new instruction and rest, implement stalling              
+            if((checkHazardRS1(IF_DE, DE_EX) || checkHazardRS2(IF_DE, DE_EX)) && IF_DE.isStalled==0){
+                // stalls=3;
+                IF_DE.isStall=3, IF_DE.isStalled=1;
+                stalls+=3;
+            }
+            else if((checkHazardRS1(IF_DE, EX_MA) || checkHazardRS2(IF_DE, EX_MA)) && IF_DE.isStalled==0){
+                // stalls=2;
+                IF_DE.isStall=2, IF_DE.isStalled=1;
+                stalls+=2;
+            }
+            else if((checkHazardRS1(IF_DE, MA_WB) || checkHazardRS2(IF_DE, MA_WB)) && IF_DE.isStalled==0){
+                // stalls=1;
+                IF_DE.isStall=1, IF_DE.isStalled=1;
+                stalls+=1;
+            }
+        }
+        else{
+            // check data hazard between instructions
+            // implement forwarding
+            forward(IF_DE, DE_EX, EX_MA, MA_WB);
         }
     }
     

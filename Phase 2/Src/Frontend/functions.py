@@ -8,11 +8,11 @@ def raise_frame(frame):
 def reset_txt():
     reg=open('register.txt', "w")
     for i in range(32):
-        reg.write(f"0x{i} 0x0\n")
+        reg.write(f"0x{hex(i)} 0x0\n")
     reg.close()
     mem=open('memory.txt', "w")
     for i in range(0,1024,4):
-        mem.write(f"0x{i} 0x0\n")
+        mem.write(f"0x{hex(i)} 0x0\n")
     mem.close()
 
 
