@@ -6,6 +6,7 @@
 class Predictor{
     std::unordered_map<uint32_t,uint32_t> hash;
 public:
+    uint32_t counter=0;
     Predictor(){
         hash.clear();
     }
@@ -21,9 +22,11 @@ public:
     }
 
     void update(uint32_t pc, uint32_t b_target){
-        hash[pc]=b_target;
+        if(hash[pc]!=b_target){
+            hash[pc]=b_target;
+            counter++;
+        }
     }
-
     uint32_t predict(uint32_t pc){
         if(hash.find(pc)!=hash.end())
             return hash[pc];
