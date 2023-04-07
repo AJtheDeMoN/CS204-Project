@@ -104,54 +104,8 @@ void forward (Pipeline &p1, Pipeline &p2, Pipeline &p3, Pipeline &p4){
         p2.op2=p3.alu_res;
     }
 }
-void print(Pipeline &p1){
-    cout<<"Instruction-> 0x"<<hex<<p1.instruction<<"\n";
-    cout<<"Op2->"<<p1.op2<<"\n";
-    cout<<"A->"<<p1.A<<"\n";
-    cout<<"B->"<<p1.B<<"\n";
-    cout<<"Branch Target->"<<p1.branchTarget<<"\n";
-    cout<<"Alu_Result->"<<p1.alu_res<<"\n";
-    cout<<"Ld_Result->"<<p1.ld_res<<"\n";
-    cout<<"PC->"<<p1.pc<<"\n";
-    cout<<"ISBubble?->"<<p1.isBubble<<"\n";
-    cout<<"IsStall?->"<<p1.isStall<<"\n";
-    cout<<"IsStalled?->"<<p1.isStalled<<"\n";
-}
 
-void print_registers(int clock){
-    cout<<"\nValues stored in registers after "<<clock<<" cycles->\n";
-    for(int i=0;i<32;i++){
-        cout<<"register["<<i<<"]-> "<<registers[i]<<"\n";
-    }
-}
 
-void updateMem(){//updating the values in memory.txt
-    FILE *mem=fopen("memory.txt", "w");
-    for(int i=0; i<1024; i+=4){
-        uint32_t temp=*(uint32_t*)(i+memory);
-        char str[20];
-        sprintf(str, "0x%x 0x%x\n", i, temp);
-        fputs(str, mem);
-    }
-    fclose(mem);
-}
-void updateReg(){//updating the values in memory.txt
-    FILE *mem=fopen("register.txt", "w");
-    for(int i=0; i<32; i++){
-        // uint32_t temp=*(uint32_t*)(i+memory);
-        char str[20];
-        sprintf(str, "0x%x 0x%x\n", i, registers[i]);
-        fputs(str, mem);
-    }
-    fclose(mem);
-}
-void updateClock(uint32_t clock){
-    FILE *mem=fopen("clock.txt", "w");
-    char str[20];
-    sprintf(str, "0x%x\n", clock);
-    fputs(str, mem);
-    fclose(mem);
-}
 void assign_registers(){
     registers[2]=0x90;
 }
@@ -212,8 +166,8 @@ int main(int argv, char** argc){
     int num_alu=0;
     int num_LS=0;
     int wrong_pred=0;
-    knobs[4]=20;
-    while(1){
+    // knobs[4]=20;
+    {
         if(knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
                 MA_WB.isStall--;
@@ -287,35 +241,8 @@ int main(int argv, char** argc){
             }
             if(!MA_WB.isBubble && MA_WB.inst.opcode == 0x7f ){
                 // cout<<"Here";
-                updateMem();
-                updateReg();
-                updateClock(clock);
-                break;
             }
 
-            if(knobs[3]){
-                cout<<"Cycle Number-> "<<clock<<"\n";
-                cout<<"IF_DE Pipeline Register\n";print(IF_DE);cout<<"\n";
-                cout<<"DE_EX Pipeline Register\n";print(DE_EX);cout<<"\n";
-                cout<<"EX_MA Pipeline Register\n";print(EX_MA);cout<<"\n";
-                cout<<"MA_WB Pipeline Register\n";print(MA_WB);cout<<"\n";
-            }
-            if(knobs[4]==NIE || alpha>0){
-                if(alpha==0){
-                cout<<"IF_DE Pipeline Register for 0x"<<hex<<knobs[4]<<" th instruction\n";print(IF_DE);cout<<"\n";
-                }
-                else if(alpha==1){
-                cout<<"DE_EX Pipeline Register for 0x"<<knobs[4]<<" th instruction\n";print(DE_EX);cout<<"\n";
-                }
-                else if(alpha==2){
-                cout<<"EX_MA Pipeline Register for 0x"<<knobs[4]<<" th instruction\n";print(EX_MA);cout<<"\n";
-                }
-                else{
-                cout<<"MA_WB Pipeline Register for 0x"<<knobs[4]<<" th instruction\n";print(MA_WB);cout<<"\n";
-                alpha=-1;
-                }
-                alpha++;
-            }
         }
         else{
             NIE++;
@@ -332,34 +259,15 @@ int main(int argv, char** argc){
             else if(opcode==0b0000011 || opcode==0b0100011){
                 num_LS++;//counting number of load and store instructions
             }
-            if(DE_EX.inst.opcode==0x7f)
-                break;
+            if(DE_EX.inst.opcode==0x7f){
+                
+            }
             EX_MA=execute(DE_EX, p);
             MA_WB=mem_access(EX_MA);
             writeback(MA_WB);
             pc=p.predict(pc);
         }
-        if(knobs[2]){
-            print_registers(clock);
-        }
     }
-    // Open the output file in truncate mode to clear existing contents
-    ofstream outfile("output.txt", ios::trunc);
-    // Write the output to the file
-    outfile << "Number of instruction executed         -> " << NIE << endl;
-    outfile << "Total number of cycles                 -> " << clock << endl;
-    outfile << "CPI                                    -> " << (float(clock) / NIE) << endl;
-    outfile << "Total Number of stalls                 -> " << stalls << endl;
-    outfile << "Number of control Instructions         -> " << num_C_inst << endl;
-    outfile << "Number of ALU Instructions             -> " << num_alu << endl;
-    outfile << "Number of load/store Instructions      -> " << num_LS << endl;
-    outfile << "Number of branch mispredictions        -> " << wrong_pred << endl;
-    outfile << "Number of data hazards                 -> " << data_hazard << endl;
-    outfile << "Number of control hazards              -> " << wrong_pred << endl;
-    outfile << "Number of stalls due to data hazards   -> " << (stalls - wrong_pred) << endl;
-    outfile << "Number of stalls due to control hazards-> " << wrong_pred << endl;
-
-    // Close the output file
-    outfile.close();
+    
     return 0;
 }
