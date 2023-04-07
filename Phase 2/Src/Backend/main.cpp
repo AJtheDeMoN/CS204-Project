@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <fstream>
 #include "./Headers/Predictor.h"
 #include "./Headers/Pipeline.h"
 #include "./Headers/Common.h"
@@ -257,17 +258,23 @@ int main(int argv, char** argc){
             pc=p.predict(pc);
         }
     }
-    cout<<"Number of instruction executed         -> "<<NIE<<"\n";
-    cout<<"Total number of cycles                 -> "<<clock<<"\n";
-    cout<<"CPI                                    -> "<<(float(clock)/NIE)<<"\n";
-    cout<<"Total Number of stalls                 -> "<<stalls<<"\n";
-    cout<<"Number of control Instructions         -> "<<num_C_inst<<"\n";
-    cout<<"Number of ALU Instructions             -> "<<num_alu<<"\n";
-    cout<<"Number of load/store Instructions      -> "<<num_LS<<"\n";
-    cout<<"Number of branch mispredictions        -> "<<wrong_pred<<"\n";
-    cout<<"Number of data hazards                 -> "<<data_hazard<<"\n";
-    cout<<"Number of control hazards              -> "<<wrong_pred<<"\n";
-    cout<<"Number of stalls due to data hazards   -> "<<stalls-wrong_pred<<"\n";
-    cout<<"Number of stalls due to control hazards-> "<<wrong_pred<<"\n";
+    // Open the output file in truncate mode to clear existing contents
+    ofstream outfile("output.txt", ios::trunc);
+    // Write the output to the file
+    outfile << "Number of instruction executed         -> " << NIE << endl;
+    outfile << "Total number of cycles                 -> " << clock << endl;
+    outfile << "CPI                                    -> " << (float(clock) / NIE) << endl;
+    outfile << "Total Number of stalls                 -> " << stalls << endl;
+    outfile << "Number of control Instructions         -> " << num_C_inst << endl;
+    outfile << "Number of ALU Instructions             -> " << num_alu << endl;
+    outfile << "Number of load/store Instructions      -> " << num_LS << endl;
+    outfile << "Number of branch mispredictions        -> " << wrong_pred << endl;
+    outfile << "Number of data hazards                 -> " << data_hazard << endl;
+    outfile << "Number of control hazards              -> " << wrong_pred << endl;
+    outfile << "Number of stalls due to data hazards   -> " << (stalls - wrong_pred) << endl;
+    outfile << "Number of stalls due to control hazards-> " << wrong_pred << endl;
+
+    // Close the output file
+    outfile.close();
     return 0;
 }
