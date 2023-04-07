@@ -191,8 +191,8 @@ int main(int argv, char** argc){
             i--;
         }
     }  
-    for(int i=0; i<4; i++)
-        cout<<knobs[i]<<' ';
+    // for(int i=0; i<4; i++)
+    //     cout<<knobs[i]<<' ';
     // Load instructions from file
     store_instructions(argc[1]);
     // cout<<"Here\n";
@@ -212,7 +212,7 @@ int main(int argv, char** argc){
     int num_alu=0;
     int num_LS=0;
     int wrong_pred=0;
-    knobs[4]=20;
+    // knobs[4]=20;
     while(1){
         if(knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
@@ -286,7 +286,7 @@ int main(int argv, char** argc){
                 forward(IF_DE, DE_EX, EX_MA, MA_WB);
             }
             if(!MA_WB.isBubble && MA_WB.inst.opcode == 0x7f ){
-                cout<<"Here";
+                // cout<<"Here";
                 updateMem();
                 updateReg();
                 updateClock(clock);
