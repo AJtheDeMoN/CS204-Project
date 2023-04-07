@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
-from ttkthemes import ThemedTk
+# from ttkthemes import ThemedTk
 import functions
 root=Tk()
 root.title('Risc-v Simulator')
