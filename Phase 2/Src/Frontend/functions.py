@@ -31,12 +31,8 @@ def nxt_func(nxt, line, text, registers, mem):
     
     args=text.get(idx,idx+1).split(' ')
     print(args)
-    terminal=""
-    if(idx==1.0):
-        terminal=subprocess.run(['gcc', 'myRISCVdebug.c', '-o', 'debug', '&&', 'debug', args[0], args[1]],stdout=subprocess.PIPE, shell=True)
-        reset_txt()
-    else:
-        terminal=subprocess.run(['debug', args[0], args[1]],stdout=subprocess.PIPE, shell=True)
+    # terminal=subprocess.run(['gcc', 'myRISCVdebug.c', '-o', 'debug', '&&', 'debug', args[0], args[1]],stdout=subprocess.PIPE, shell=True)
+    terminal=subprocess.run(['debug', args[0], args[1]],stdout=subprocess.PIPE, shell=True)
 
     pc=int(terminal.stdout.decode(), 16)
     print(pc)
@@ -199,6 +195,8 @@ def run_func(content, args):
 
 
 def debug_func(content, root,location,contentmain,locationmain):
+    reset_txt()
+    subprocess.run(['g++', '../Backend/debug.cpp', '-o', 'debug'], shell=True)
     line=[1, 0]
     # raise_frame(root)
     # root.delete(root)
