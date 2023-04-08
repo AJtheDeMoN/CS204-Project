@@ -64,7 +64,10 @@ CS204-Project \
 
 For running programme: \
 	First, make sure tkinter library is installed for python GUI. \
-	Then, open terminal and run following instructions: 
+	
+	$pip install tk
+	
+Then, open terminal and run following instructions: 
 	
 	$cd Phase 2
 	$cd src
