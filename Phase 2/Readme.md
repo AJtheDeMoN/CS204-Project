@@ -7,6 +7,7 @@
 ### Table of contents
 - [Directory Structure](#directory-structure)
 - [How to Execute](#how-to-execute)
+- [Authors](#authors)
 
 
 
@@ -75,3 +76,11 @@ Then, open terminal and run following instructions:
 	$python3 gui_main.py
 	
 You will get your desired output on the GUI.
+
+--------
+
+### Authors
+1. ABHISHEK JAISWAL (2021csb1061@iitrpr.ac.in)
+2. AJAYBEER SINGH (2021csb1063@iitrpr.ac.in)
+3. AKANKSH CAIMI (2021csb1064@iitrpr.ac.in)
+4. DEVANSHU DHAWAN (2021csb1082@iitrpr.ac.in)
