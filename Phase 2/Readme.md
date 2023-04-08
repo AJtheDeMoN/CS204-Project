@@ -10,9 +10,10 @@
 - [Authors](#authors)
 
 
+----------
 
 ### Directory Structure:
-----------
+
 CS204-Project \
 &ensp;&ensp;&ensp;&ensp;├─ Phase 2 \
 &ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;&ensp;├─ Src <br>
