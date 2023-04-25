@@ -84,7 +84,7 @@ public:
                 return updateRandom(startIndex, endIndex, address);
             }
             else if(replacementPolicy=="FIFO"){
-
+                return updateFIFO(startIndex, endIndex, address);
             }
         }
         // hit
@@ -149,6 +149,7 @@ public:
             {
                 cacheArray[i].valid = true;
                 cacheArray[i].tag = address / ((blockSize * numSets * 4));
+                cacheArray[i].Data = getData(address);
                 target = i;
                 break;
             }
@@ -158,9 +159,10 @@ public:
         random_device rd;
         mt19937 gen(rd());
         uniform_int_distribution<> dis(startIndex,endIndex);
-        int target=dis(gen);
+        target=dis(gen);
         cacheArray[target].Data = getData(address);
         cacheArray[target].tag=address / ((blockSize * numSets * 4));
+        return cacheArray[target].Data[(address/4)%blockSize];
     }
     //update FIFO function
     uint32_t updateFIFO(int startIndex, int endIndex, uint32_t address){
@@ -254,7 +256,7 @@ int main()
     // cin >> numWays;
     // cout << "Enter Miss Penalty: ";
     // cin >> missPenalty;
-    cacheSize=16, blockSize=4, cacheType="set_assoc", replacementPolicy="LRU", hitTime=1, numWays=2, missPenalty=20;
+    cacheSize=4, blockSize=1, cacheType="fully_assoc", replacementPolicy="FIFO", hitTime=1, numWays=2, missPenalty=20;
     // Create Cache
     store_instructions("temp.txt");
     Cache cache(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays);
