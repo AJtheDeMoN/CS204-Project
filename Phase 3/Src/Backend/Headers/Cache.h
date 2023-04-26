@@ -1,6 +1,6 @@
 #ifndef CACHE
 #define CACHE
-// #include "Common.h"
+#include "Common.h"
 #include <vector>
 #include <random>
 #include <algorithm>
@@ -143,7 +143,7 @@ public:
     if (cacheArray[hitIndex].accessCount == 0) {
         int evictedAddress = (cacheArray[hitIndex].tag * numSets + index) * blockSize * 4;
         for (int i = 0; i < blockSize; i++) {
-            memory[evictedAddress + i*4] = cacheArray[hitIndex].Data[i];
+            *(uint32_t*)(memory+address) = cacheArray[hitIndex].Data[i];
         }
         cacheArray[hitIndex].dirty = false;
         cacheArray[hitIndex].valid = false;
@@ -162,6 +162,7 @@ public:
                 cacheArray[i].accessCount = numWays - 1;
                 cacheArray[i].valid = true;
                 cacheArray[i].tag = address / ((blockSize * numSets * 4));
+                cacheArray[i].Data = getData(address);
                 target = i;
                 break;
             }

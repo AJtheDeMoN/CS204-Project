@@ -78,9 +78,11 @@ int main(int argv, char** argc){
     cin >> numWays;
     cout << "Enter Miss Penalty: ";
     cin >> missPenalty;
-    // cacheSize=4, blockSize=1, cacheType="fully_assoc", replacementPolicy="FIFO", hitTime=1, numWays=2, missPenalty=20;
+    // cacheSize=4, blockSize=1, cacheType="direct_mapped", replacementPolicy="LRU", hitTime=1, numWays=2, missPenalty=20;
+    // knobs[0]=knobs[1]=1;
     Pipeline IF_DE, DE_EX, EX_MA, MA_WB;
-    Cache $I(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays, instruction_memory), $M(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays, memory);
+    Cache $I(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays, instruction_memory);
+    Cache $M(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays, memory);
     Predictor p;
     // Main execution loop
     int NIE=0;//variables intialized to print the required data needed as per the project
