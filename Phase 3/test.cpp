@@ -133,7 +133,7 @@ public:
         cacheArray[hitIndex].Data[i] = *(uint32_t*)(data_memory+memAddress) ;
         memAddress += 4;
     }
-    
+
     // If the block is evicted from the cache, write it back to memory
     if (cacheArray[hitIndex].accessCount == 0) {
         int evictedAddress = (cacheArray[hitIndex].tag * numSets + index) * blockSize * 4;
@@ -306,7 +306,7 @@ int main()
     cin >> iblockSize;
     cout << "Enter Cache Type: ";
     cin >> icacheType;
-    cout << "Enter Replacement Policy: ";
+    cout << "Enter Replacement Policy (LRU/FIFO/RANDOM/LFU) : ";
     cin >> ireplacementPolicy;
     cout << "Enter hit time: ";
     cin >> ihitTime;
@@ -349,7 +349,7 @@ int main()
     cin >> dblockSize;
     cout << "Enter Cache Type: ";
     cin >> dcacheType;
-    cout << "Enter Replacement Policy: ";
+    cout << "Enter Replacement Policy (LRU/FIFO/RANDOM/LFU): ";
     cin >> dreplacementPolicy;
     cout << "Enter hit time: ";
     cin >> dhitTime;
@@ -361,16 +361,16 @@ int main()
     // Create Cache
     // store_instructions("temp.txt");
     Cache dcache(dcacheSize, dblockSize, dcacheType, dreplacementPolicy, dhitTime, dmissPenalty, dnumWays);
-    dcache.write(32,2);
-    dcache.write(48,125);
-    dcache.write(52,39);
-    dcache.write(20,256);
-    dcache.write(40,-890);
-    cout<<dcache.lookup(32)<<endl;
-    cout<<dcache.lookup(48)<<endl;
-    cout<<dcache.lookup(52)<<endl;
-    cout<<dcache.lookup(20)<<endl;
-    cout<<dcache.lookup(40)<<endl;
+    // dcache.write(32,2);
+    // dcache.write(48,125);
+    // dcache.write(52,39);
+    // dcache.write(20,256);
+    // dcache.write(40,-890);
+    // cout<<dcache.lookup(32)<<endl;
+    // cout<<dcache.lookup(48)<<endl;
+    // cout<<dcache.lookup(52)<<endl;
+    // cout<<dcache.lookup(20)<<endl;
+    // cout<<dcache.lookup(40)<<endl;
     dcache.caclulateStats();
 
     return 0;
