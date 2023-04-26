@@ -134,10 +134,21 @@ public:
         }
     }
 
-    // Write the value to the appropriate word in the block
+    // Write the value to the appropriate word in the block in the cache
     int wordIndex = (address / 4) % blockSize;
     cacheArray[hitIndex].Data[wordIndex] = value;
     cacheArray[hitIndex].dirty = true;
+
+    // Write the value to memory
+    int memAddress = address;
+    for (int i = 0; i < blockSize; i++) {
+        data_memory[memAddress] = cacheArray[hitIndex].Data[i];
+        memAddress += 4;
+    }
+
+    // Update cache metadata
+    cacheArray[hitIndex].accessCount++;
+    
 
     // If the block is evicted from the cache, write it back to memory
     if (cacheArray[hitIndex].accessCount == 0) {
@@ -150,6 +161,7 @@ public:
         cacheArray[hitIndex].tag = -1;
     }
 }
+
 
     // Find LRU function
     uint32_t updateLRU(int startIndex, int endIndex, uint32_t address){
