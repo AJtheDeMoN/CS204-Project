@@ -70,6 +70,7 @@ public:
         {
             if ((cacheArray[i].tag == tag) && cacheArray[i].valid)
             {
+                hits++;
                 hitIndex = i;
                 break;
             }
@@ -78,18 +79,16 @@ public:
         if (hitIndex == -1){
             misses++;
             if(replacementPolicy=="LRU")
-                return updateLRU(startIndex, endIndex, address);
+                hitIndex=updateLRU(startIndex, endIndex, address);
             else if(replacementPolicy=="LFU")
-                return updateLFU(startIndex, endIndex, address);
-            else if(replacementPolicy=="RANDOM"){
-                return updateRandom(startIndex, endIndex, address);
-            }
-            else if(replacementPolicy=="FIFO"){
-                return updateFIFO(startIndex, endIndex, address);
-            }
+                hitIndex=updateLFU(startIndex, endIndex, address);
+            else if(replacementPolicy=="RANDOM")
+                hitIndex=updateRandom(startIndex, endIndex, address);
+            else if(replacementPolicy=="FIFO")
+                hitIndex=updateFIFO(startIndex, endIndex, address);
         }
         // hit
-        hits++;
+        // hits++;
         if(replacementPolicy=="LRU")
             return retrieveLRU(startIndex, endIndex, address, hitIndex);
         else if(replacementPolicy=="LFU")
@@ -125,31 +124,16 @@ public:
         } else if (replacementPolicy == "FIFO") {
             hitIndex = updateFIFO(startIndex, endIndex, address);
         }
-    } else {
-        hits++;
-        if (replacementPolicy == "LRU") {
-            retrieveLRU(startIndex, endIndex, address, hitIndex);
-        } else if (replacementPolicy == "LFU") {
-            retrieveLFU(startIndex, endIndex, address, hitIndex);
-        }
-    }
-
-    // Write the value to the appropriate word in the block in the cache
-    int wordIndex = (address / 4) % blockSize;
-    cacheArray[hitIndex].Data[wordIndex] = value;
-    cacheArray[hitIndex].dirty = true;
-
-    // Write the value to memory
-    int memAddress = address;
+    } 
+    *(uint32_t*)(data_memory+address)=value;
+    // int memAddress = address;
+    int memAddress = (address / (4*blockSize))*4*blockSize;
     for (int i = 0; i < blockSize; i++) {
-        data_memory[memAddress] = cacheArray[hitIndex].Data[i];
+        int temp=data_memory[memAddress];
+        cacheArray[hitIndex].Data[i] = *(uint32_t*)(data_memory+memAddress) ;
         memAddress += 4;
     }
-
-    // Update cache metadata
-    cacheArray[hitIndex].accessCount++;
     
-
     // If the block is evicted from the cache, write it back to memory
     if (cacheArray[hitIndex].accessCount == 0) {
         int evictedAddress = (cacheArray[hitIndex].tag * numSets + index) * blockSize * 4;
@@ -178,13 +162,14 @@ public:
             }
         }
         // decrement recently used count for rest
-        for (int i = startIndex; i <= endIndex; i++)
-        {
-            if (i != target && cacheArray[i].accessCount)
-                cacheArray[i].accessCount--;
-        }
-        cacheArray[target].Data = getData(address);
-        return cacheArray[target].Data[(address/4)%blockSize];
+        return target;
+        // for (int i = startIndex; i <= endIndex; i++)
+        // {
+        //     if (i != target && cacheArray[i].accessCount)
+        //         cacheArray[i].accessCount--;
+        // }
+        // cacheArray[target].Data = getData(address);
+        // return cacheArray[target].Data[(address/4)%blockSize];
     }
     // retrieve LRU function
     uint32_t retrieveLRU(int startIndex, int endIndex, uint32_t address, int hitIndex){
@@ -200,8 +185,9 @@ public:
         idx->Data = getData(address);
         idx->valid=true;
         idx->tag=address / ((blockSize * numSets * 4));
-        idx->accessCount = 1;
-        return idx->Data[(address/4)%blockSize];
+        idx->accessCount = 0;
+        return idx-cacheArray.begin();
+        // return idx->Data[(address/4)%blockSize];
     }
     //retrieve LFU function
     uint32_t retrieveLFU(int startIndex, int endIndex, uint32_t address, int hitIndex){
@@ -223,14 +209,16 @@ public:
             }
         }
         if(target!=-1)
-            return cacheArray[target].Data[(address/4)%blockSize];
+            return target;
+            // return cacheArray[target].Data[(address/4)%blockSize];
         random_device rd;
         mt19937 gen(rd());
         uniform_int_distribution<> dis(startIndex,endIndex);
         target=dis(gen);
         cacheArray[target].Data = getData(address);
         cacheArray[target].tag=address / ((blockSize * numSets * 4));
-        return cacheArray[target].Data[(address/4)%blockSize];
+        return target;
+        // return cacheArray[target].Data[(address/4)%blockSize];
     }
     //update FIFO function
     uint32_t updateFIFO(int startIndex, int endIndex, uint32_t address){
@@ -249,7 +237,8 @@ public:
         }
         if(target!=-1){
             ll_pos++;
-            return cacheArray[target].Data[(address/4)%blockSize];
+            return target;
+            // return cacheArray[target].Data[(address/4)%blockSize];
         }
         auto idx=min_element(cacheArray.begin()+startIndex,cacheArray.begin()+endIndex+1, [](cacheBlock &a, cacheBlock &b){return a.accessCount<b.accessCount;});
         idx->Data = getData(address);
@@ -257,6 +246,7 @@ public:
         idx->accessCount = ll_pos;
         idx->tag=address / ((blockSize * numSets * 4));
         ll_pos++;
+        return idx-cacheArray.begin();
         return idx->Data[(address/4)%blockSize];
     }
     
@@ -298,58 +288,58 @@ public:
     }
 };
 // Main function
-// void store_instructions(char* location){
-//     FILE *inp=fopen(location, "r");
-//     unsigned int address, code;
-//     while(fscanf(inp, "%x %x",&address,&code)!=EOF){
-//         *(uint32_t*)(memory+address)=code;
-//     }
-// }
+void store_instructions(char* location){
+    FILE *inp=fopen(location, "r");
+    unsigned int address, code;
+    while(fscanf(inp, "%x %x",&address,&code)!=EOF){
+        *(uint32_t*)(memory+address)=code;
+    }
+}
 int main()
 {
-    // // Read input parameters
-    // int icacheSize, iblockSize, inumWays, imissPenalty, ihitTime;
-    // string icacheType, ireplacementPolicy;
-    // cout << "Enter Cache Size: ";
-    // cin >> icacheSize;
-    // cout << "Enter Block Size: ";
-    // cin >> iblockSize;
-    // cout << "Enter Cache Type: ";
-    // cin >> icacheType;
-    // cout << "Enter Replacement Policy: ";
-    // cin >> ireplacementPolicy;
-    // cout << "Enter hit time: ";
-    // cin >> ihitTime;
-    // cout << "Enter Number of Ways: ";
-    // cin >> inumWays;
-    // cout << "Enter Miss Penalty: ";
-    // cin >> imissPenalty;
-    // // cacheSize=4, blockSize=1, cacheType="fully_assoc", replacementPolicy="FIFO", hitTime=1, numWays=2, missPenalty=20;
-    // // Create Cache
-    // store_instructions("temp.txt");
-    // Cache icache(icacheSize, iblockSize, icacheType, ireplacementPolicy, ihitTime, imissPenalty, inumWays);
+    // Read input parameters
+    int icacheSize, iblockSize, inumWays, imissPenalty, ihitTime;
+    string icacheType, ireplacementPolicy;
+    cout << "Enter Cache Size: ";
+    cin >> icacheSize;
+    cout << "Enter Block Size: ";
+    cin >> iblockSize;
+    cout << "Enter Cache Type: ";
+    cin >> icacheType;
+    cout << "Enter Replacement Policy: ";
+    cin >> ireplacementPolicy;
+    cout << "Enter hit time: ";
+    cin >> ihitTime;
+    cout << "Enter Number of Ways: ";
+    cin >> inumWays;
+    cout << "Enter Miss Penalty: ";
+    cin >> imissPenalty;
+    // cacheSize=4, blockSize=1, cacheType="fully_assoc", replacementPolicy="FIFO", hitTime=1, numWays=2, missPenalty=20;
+    // Create Cache
+    store_instructions("temp.txt");
+    Cache icache(icacheSize, iblockSize, icacheType, ireplacementPolicy, ihitTime, imissPenalty, inumWays);
 
 
-    // // Read file
-    // // Read input file
-    // ifstream inFile("instruction.txt");
-    // if (inFile.is_open())
-    // {
-    //     int address;
-    //     while (inFile >> hex>>address)
-    //     {
+    // Read file
+    // Read input file
+    ifstream inFile("instruction.txt");
+    if (inFile.is_open())
+    {
+        int address;
+        while (inFile >> hex>>address)
+        {
 
-    //         // Lookup
-    //         icache.lookup(address);
-    //     }
-    //     inFile.close();
-    // }
-    // else
-    // {
-    //     cout << "Error opening file";
-    // }
-    // // Print stats
-    // icache.caclulateStats();
+            // Lookup
+            icache.lookup(address);
+        }
+        inFile.close();
+    }
+    else
+    {
+        cout << "Error opening file";
+    }
+    // Print stats
+    icache.caclulateStats();
 
     int dcacheSize, dblockSize, dnumWays, dmissPenalty, dhitTime;
     string dcacheType, dreplacementPolicy;
@@ -372,6 +362,15 @@ int main()
     // store_instructions("temp.txt");
     Cache dcache(dcacheSize, dblockSize, dcacheType, dreplacementPolicy, dhitTime, dmissPenalty, dnumWays);
     dcache.write(32,2);
+    dcache.write(48,125);
+    dcache.write(52,39);
+    dcache.write(20,256);
+    dcache.write(40,-890);
+    cout<<dcache.lookup(32)<<endl;
+    cout<<dcache.lookup(48)<<endl;
+    cout<<dcache.lookup(52)<<endl;
+    cout<<dcache.lookup(20)<<endl;
+    cout<<dcache.lookup(40)<<endl;
     dcache.caclulateStats();
 
     return 0;
