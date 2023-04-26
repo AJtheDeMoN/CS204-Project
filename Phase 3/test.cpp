@@ -10,6 +10,7 @@
 
 using namespace std;
 uint8_t memory[1024];
+uint8_t data_memory[1024];
 struct cacheBlock
 {
     uint32_t tag;
@@ -95,6 +96,61 @@ public:
             return retrieveLFU(startIndex, endIndex, address, hitIndex);
         return retrieve(address, hitIndex);
     }
+    //write function
+    void write(uint32_t address, uint32_t value) {
+    int index = ((address / (blockSize*4)) % numSets);
+    int tag = address / ((blockSize * numSets * 4));
+    int startIndex = index * numWays;
+    int endIndex = startIndex + numWays - 1;
+    int way = -1;
+    int hitIndex = -1;
+
+    // check if hit
+    for (int i = startIndex; i <= endIndex; i++) {
+        if ((cacheArray[i].tag == tag) && cacheArray[i].valid) {
+            hitIndex = i;
+            break;
+        }
+    }
+
+    // if miss
+    if (hitIndex == -1) {
+        misses++;
+        if (replacementPolicy == "LRU") {
+            hitIndex = updateLRU(startIndex, endIndex, address);
+        } else if (replacementPolicy == "LFU") {
+            hitIndex = updateLFU(startIndex, endIndex, address);
+        } else if (replacementPolicy == "RANDOM") {
+            hitIndex = updateRandom(startIndex, endIndex, address);
+        } else if (replacementPolicy == "FIFO") {
+            hitIndex = updateFIFO(startIndex, endIndex, address);
+        }
+    } else {
+        hits++;
+        if (replacementPolicy == "LRU") {
+            retrieveLRU(startIndex, endIndex, address, hitIndex);
+        } else if (replacementPolicy == "LFU") {
+            retrieveLFU(startIndex, endIndex, address, hitIndex);
+        }
+    }
+
+    // Write the value to the appropriate word in the block
+    int wordIndex = (address / 4) % blockSize;
+    cacheArray[hitIndex].Data[wordIndex] = value;
+    cacheArray[hitIndex].dirty = true;
+
+    // If the block is evicted from the cache, write it back to memory
+    if (cacheArray[hitIndex].accessCount == 0) {
+        int evictedAddress = (cacheArray[hitIndex].tag * numSets + index) * blockSize * 4;
+        for (int i = 0; i < blockSize; i++) {
+            data_memory[evictedAddress + i*4] = cacheArray[hitIndex].Data[i];
+        }
+        cacheArray[hitIndex].dirty = false;
+        cacheArray[hitIndex].valid = false;
+        cacheArray[hitIndex].tag = -1;
+    }
+}
+
     // Find LRU function
     uint32_t updateLRU(int startIndex, int endIndex, uint32_t address){
         int target = -1;
@@ -230,55 +286,81 @@ public:
     }
 };
 // Main function
-void store_instructions(char* location){
-    FILE *inp=fopen(location, "r");
-    unsigned int address, code;
-    while(fscanf(inp, "%x %x",&address,&code)!=EOF){
-        *(uint32_t*)(memory+address)=code;
-    }
-}
+// void store_instructions(char* location){
+//     FILE *inp=fopen(location, "r");
+//     unsigned int address, code;
+//     while(fscanf(inp, "%x %x",&address,&code)!=EOF){
+//         *(uint32_t*)(memory+address)=code;
+//     }
+// }
 int main()
 {
-    // Read input parameters
-    int cacheSize, blockSize, numWays, missPenalty, hitTime;
-    string cacheType, replacementPolicy;
+    // // Read input parameters
+    // int icacheSize, iblockSize, inumWays, imissPenalty, ihitTime;
+    // string icacheType, ireplacementPolicy;
     // cout << "Enter Cache Size: ";
-    // cin >> cacheSize;
+    // cin >> icacheSize;
     // cout << "Enter Block Size: ";
-    // cin >> blockSize;
+    // cin >> iblockSize;
     // cout << "Enter Cache Type: ";
-    // cin >> cacheType;
+    // cin >> icacheType;
     // cout << "Enter Replacement Policy: ";
-    // cin >> replacementPolicy;
+    // cin >> ireplacementPolicy;
     // cout << "Enter hit time: ";
-    // cin >> hitTime;
+    // cin >> ihitTime;
     // cout << "Enter Number of Ways: ";
-    // cin >> numWays;
+    // cin >> inumWays;
     // cout << "Enter Miss Penalty: ";
-    // cin >> missPenalty;
-    cacheSize=4, blockSize=1, cacheType="fully_assoc", replacementPolicy="FIFO", hitTime=1, numWays=2, missPenalty=20;
-    // Create Cache
-    store_instructions("temp.txt");
-    Cache cache(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays);
-    // Read file
-    // Read input file
-    ifstream inFile("instruction.txt");
-    if (inFile.is_open())
-    {
-        int address;
-        while (inFile >> hex>>address)
-        {
+    // cin >> imissPenalty;
+    // // cacheSize=4, blockSize=1, cacheType="fully_assoc", replacementPolicy="FIFO", hitTime=1, numWays=2, missPenalty=20;
+    // // Create Cache
+    // store_instructions("temp.txt");
+    // Cache icache(icacheSize, iblockSize, icacheType, ireplacementPolicy, ihitTime, imissPenalty, inumWays);
 
-            // Lookup
-            cache.lookup(address);
-        }
-        inFile.close();
-    }
-    else
-    {
-        cout << "Error opening file";
-    }
-    // Print stats
-    cache.caclulateStats();
+
+    // // Read file
+    // // Read input file
+    // ifstream inFile("instruction.txt");
+    // if (inFile.is_open())
+    // {
+    //     int address;
+    //     while (inFile >> hex>>address)
+    //     {
+
+    //         // Lookup
+    //         icache.lookup(address);
+    //     }
+    //     inFile.close();
+    // }
+    // else
+    // {
+    //     cout << "Error opening file";
+    // }
+    // // Print stats
+    // icache.caclulateStats();
+
+    int dcacheSize, dblockSize, dnumWays, dmissPenalty, dhitTime;
+    string dcacheType, dreplacementPolicy;
+    cout << "Enter Cache Size: ";
+    cin >> dcacheSize;
+    cout << "Enter Block Size: ";
+    cin >> dblockSize;
+    cout << "Enter Cache Type: ";
+    cin >> dcacheType;
+    cout << "Enter Replacement Policy: ";
+    cin >> dreplacementPolicy;
+    cout << "Enter hit time: ";
+    cin >> dhitTime;
+    cout << "Enter Number of Ways: ";
+    cin >> dnumWays;
+    cout << "Enter Miss Penalty: ";
+    cin >> dmissPenalty;
+    // cacheSize=4, blockSize=1, cacheType="fully_assoc", replacementPolicy="FIFO", hitTime=1, numWays=2, missPenalty=20;
+    // Create Cache
+    // store_instructions("temp.txt");
+    Cache dcache(dcacheSize, dblockSize, dcacheType, dreplacementPolicy, dhitTime, dmissPenalty, dnumWays);
+    dcache.write(32,2);
+    dcache.caclulateStats();
+
     return 0;
 }
