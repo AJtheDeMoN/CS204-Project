@@ -11,6 +11,7 @@
 #include "./Headers/MemAccess.h"
 #include "./Headers/Writeback.h"
 #include "./Headers/hazards.h"
+#include "./Headers/Cache.h"
 using namespace std;
 
 int main(int argv, char** argc){
@@ -54,13 +55,32 @@ int main(int argv, char** argc){
     // Load instructions from file
     store_instructions(argc[1]);
     // cout<<"Here\n";
-    // store_instructions("C:/Users/Devanshu/Desktop/Computer/CS204 Project/CS204-Project/Phase 2/Src/Backend/inst.mc");
+    // store_instructions("C:/Users/Devanshu/Desktop/Computer/CS204 Project/CS204-Project/Phase 2/Test/fibonacci.mc");
     assign_registers();
     // Initialize program counter and clock
     uint32_t pc=0;
     uint32_t clock=0;
     // Initialize pipeline stages
+    // Read input parameters
+    int cacheSize, blockSize, numWays, missPenalty, hitTime;
+    string cacheType, replacementPolicy;
+    cout << "Enter Cache Size: ";
+    cin >> cacheSize;
+    cout << "Enter Block Size: ";
+    cin >> blockSize;
+    cout << "Enter Cache Type: ";
+    cin >> cacheType;
+    cout << "Enter Replacement Policy: ";
+    cin >> replacementPolicy;
+    cout << "Enter hit time: ";
+    cin >> hitTime;
+    cout << "Enter Number of Ways: ";
+    cin >> numWays;
+    cout << "Enter Miss Penalty: ";
+    cin >> missPenalty;
+    // cacheSize=4, blockSize=1, cacheType="fully_assoc", replacementPolicy="FIFO", hitTime=1, numWays=2, missPenalty=20;
     Pipeline IF_DE, DE_EX, EX_MA, MA_WB;
+    Cache $I(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays, instruction_memory), $M(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays, memory);
     Predictor p;
     // Main execution loop
     int NIE=0;//variables intialized to print the required data needed as per the project
@@ -83,7 +103,7 @@ int main(int argv, char** argc){
                 EX_MA.isStall--;
             else
                 EX_MA.isStalled=false;
-                MA_WB=mem_access(EX_MA);
+                MA_WB=mem_access(EX_MA, $M);
             if(DE_EX.isStall>0)
                 DE_EX.isStall--;
             else
@@ -110,7 +130,7 @@ int main(int argv, char** argc){
                 if(DE_EX.isBubble){
                     stalls++;//counting number of stalls
                 }
-                IF_DE=fetch(pc, p);
+                IF_DE=fetch(pc, p, $I);
                 // update pc
                 pc=p.predict(pc);
                 if(EX_MA.controls.isBranch && !EX_MA.isBubble && EX_MA.branchTarget!=DE_EX.pc){//if predicted and target value didn't match then stall
@@ -178,7 +198,7 @@ int main(int argv, char** argc){
         else{
             NIE++;
             clock+=5;
-            IF_DE=fetch(pc,p);
+            IF_DE=fetch(pc,p, $I);
             DE_EX=decode(IF_DE);
             uint32_t opcode=DE_EX.instruction&(0x7f);
             if(opcode==0b1100011 || opcode==0b1101111 || opcode==0b1100111|| opcode==0b0110111|| opcode==0b0010111){
@@ -198,7 +218,7 @@ int main(int argv, char** argc){
                 break;
             }
             EX_MA=execute(DE_EX, p);
-            MA_WB=mem_access(EX_MA);
+            MA_WB=mem_access(EX_MA, $M);
             writeback(MA_WB);
             pc=p.predict(pc);
         }

@@ -1,6 +1,6 @@
 #ifndef CACHE
 #define CACHE
-#include "Common.h"
+// #include "Common.h"
 #include <vector>
 #include <random>
 #include <algorithm>
@@ -32,11 +32,12 @@ protected:
     string cacheType, replacementPolicy;
     int hitTime, missPenalty, accesses, hits, misses, coldMisses, conflictMisses, capacityMisses, memoryStalls;
     vector<cacheBlock> cacheArray;
+    uint8_t *memory;
     int ll_pos;
 
 public:
     // Constructor
-    Cache(int cs, int bs, string ct, string rp, int ht, int mp, int nw) : ll_pos(0),cacheSize(cs), blockSize(bs), numBlocks(cs / bs), cacheType(ct), replacementPolicy(rp), hitTime(ht), missPenalty(mp), numWays(nw), accesses(0), hits(0), misses(0), coldMisses(0), conflictMisses(0), capacityMisses(0), memoryStalls(0)
+    Cache(int cs, int bs, string ct, string rp, int ht, int mp, int nw, uint8_t* mem) : ll_pos(0),cacheSize(cs), blockSize(bs), numBlocks(cs / bs), cacheType(ct), replacementPolicy(rp), hitTime(ht), missPenalty(mp), numWays(nw), accesses(0), hits(0), misses(0), coldMisses(0), conflictMisses(0), capacityMisses(0), memoryStalls(0),  memory(mem)
     {
         if (cacheType == "direct_mapped")
         {
@@ -74,6 +75,7 @@ public:
         {
             if ((cacheArray[i].tag == tag) && cacheArray[i].valid)
             {
+                hits++;
                 hitIndex = i;
                 break;
             }
@@ -82,24 +84,74 @@ public:
         if (hitIndex == -1){
             misses++;
             if(replacementPolicy=="LRU")
-                return updateLRU(startIndex, endIndex, address);
+                hitIndex=updateLRU(startIndex, endIndex, address);
             else if(replacementPolicy=="LFU")
-                return updateLFU(startIndex, endIndex, address);
-            else if(replacementPolicy=="RANDOM"){
-                return updateRandom(startIndex, endIndex, address);
-            }
-            else if(replacementPolicy=="FIFO"){
-                return updateFIFO(startIndex, endIndex, address);
-            }
+                hitIndex=updateLFU(startIndex, endIndex, address);
+            else if(replacementPolicy=="RANDOM")
+                hitIndex=updateRandom(startIndex, endIndex, address);
+            else if(replacementPolicy=="FIFO")
+                hitIndex=updateFIFO(startIndex, endIndex, address);
         }
         // hit
-        hits++;
+        // hits++;
         if(replacementPolicy=="LRU")
             return retrieveLRU(startIndex, endIndex, address, hitIndex);
         else if(replacementPolicy=="LFU")
             return retrieveLFU(startIndex, endIndex, address, hitIndex);
         return retrieve(address, hitIndex);
     }
+    //write function
+    void write(uint32_t address, uint32_t value) {
+    int index = ((address / (blockSize*4)) % numSets);
+    int tag = address / ((blockSize * numSets * 4));
+    int startIndex = index * numWays;
+    int endIndex = startIndex + numWays - 1;
+    int way = -1;
+    int hitIndex = -1;
+
+    // check if hit
+    for (int i = startIndex; i <= endIndex; i++) {
+        if ((cacheArray[i].tag == tag) && cacheArray[i].valid) {
+            hitIndex = i;
+            break;
+        }
+    }
+
+    // if miss
+    if (hitIndex == -1) {
+        misses++;
+        if (replacementPolicy == "LRU") {
+            hitIndex = updateLRU(startIndex, endIndex, address);
+        } else if (replacementPolicy == "LFU") {
+            hitIndex = updateLFU(startIndex, endIndex, address);
+        } else if (replacementPolicy == "RANDOM") {
+            hitIndex = updateRandom(startIndex, endIndex, address);
+        } else if (replacementPolicy == "FIFO") {
+            hitIndex = updateFIFO(startIndex, endIndex, address);
+        }
+    } 
+    *(uint32_t*)(memory+address)=value;
+    // int memAddress = address;
+    int memAddress = (address / (4*blockSize))*4*blockSize;
+    for (int i = 0; i < blockSize; i++) {
+        int temp=memory[memAddress];
+        cacheArray[hitIndex].Data[i] = *(uint32_t*)(memory+memAddress) ;
+        memAddress += 4;
+    }
+
+    // If the block is evicted from the cache, write it back to memory
+    if (cacheArray[hitIndex].accessCount == 0) {
+        int evictedAddress = (cacheArray[hitIndex].tag * numSets + index) * blockSize * 4;
+        for (int i = 0; i < blockSize; i++) {
+            memory[evictedAddress + i*4] = cacheArray[hitIndex].Data[i];
+        }
+        cacheArray[hitIndex].dirty = false;
+        cacheArray[hitIndex].valid = false;
+        cacheArray[hitIndex].tag = -1;
+    }
+}
+
+
     // Find LRU function
     uint32_t updateLRU(int startIndex, int endIndex, uint32_t address){
         int target = -1;
@@ -115,13 +167,14 @@ public:
             }
         }
         // decrement recently used count for rest
-        for (int i = startIndex; i <= endIndex; i++)
-        {
-            if (i != target && cacheArray[i].accessCount)
-                cacheArray[i].accessCount--;
-        }
-        cacheArray[target].Data = getData(address);
-        return cacheArray[target].Data[(address/4)%blockSize];
+        return target;
+        // for (int i = startIndex; i <= endIndex; i++)
+        // {
+        //     if (i != target && cacheArray[i].accessCount)
+        //         cacheArray[i].accessCount--;
+        // }
+        // cacheArray[target].Data = getData(address);
+        // return cacheArray[target].Data[(address/4)%blockSize];
     }
     // retrieve LRU function
     uint32_t retrieveLRU(int startIndex, int endIndex, uint32_t address, int hitIndex){
@@ -137,8 +190,9 @@ public:
         idx->Data = getData(address);
         idx->valid=true;
         idx->tag=address / ((blockSize * numSets * 4));
-        idx->accessCount = 1;
-        return idx->Data[(address/4)%blockSize];
+        idx->accessCount = 0;
+        return idx-cacheArray.begin();
+        // return idx->Data[(address/4)%blockSize];
     }
     //retrieve LFU function
     uint32_t retrieveLFU(int startIndex, int endIndex, uint32_t address, int hitIndex){
@@ -160,14 +214,16 @@ public:
             }
         }
         if(target!=-1)
-            return cacheArray[target].Data[(address/4)%blockSize];
+            return target;
+            // return cacheArray[target].Data[(address/4)%blockSize];
         random_device rd;
         mt19937 gen(rd());
         uniform_int_distribution<> dis(startIndex,endIndex);
         target=dis(gen);
         cacheArray[target].Data = getData(address);
         cacheArray[target].tag=address / ((blockSize * numSets * 4));
-        return cacheArray[target].Data[(address/4)%blockSize];
+        return target;
+        // return cacheArray[target].Data[(address/4)%blockSize];
     }
     //update FIFO function
     uint32_t updateFIFO(int startIndex, int endIndex, uint32_t address){
@@ -186,7 +242,8 @@ public:
         }
         if(target!=-1){
             ll_pos++;
-            return cacheArray[target].Data[(address/4)%blockSize];
+            return target;
+            // return cacheArray[target].Data[(address/4)%blockSize];
         }
         auto idx=min_element(cacheArray.begin()+startIndex,cacheArray.begin()+endIndex+1, [](cacheBlock &a, cacheBlock &b){return a.accessCount<b.accessCount;});
         idx->Data = getData(address);
@@ -194,6 +251,7 @@ public:
         idx->accessCount = ll_pos;
         idx->tag=address / ((blockSize * numSets * 4));
         ll_pos++;
+        return idx-cacheArray.begin();
         return idx->Data[(address/4)%blockSize];
     }
     
