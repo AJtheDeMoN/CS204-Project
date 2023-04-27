@@ -274,9 +274,9 @@ public:
     void caclulateStats(uint32_t clock, uint32_t inst)
     {
         accesses = hits*hitTime + misses*missPenalty;
-        coldMisses = misses - conflictMisses - capacityMisses;
         conflictMisses = numSets - 1;
         capacityMisses = misses - conflictMisses - coldMisses;
+        coldMisses = misses - conflictMisses - capacityMisses;
         float cpiWithCache = (float)(clock +accesses) / float(inst);
         float cpiWithoutCache = (float)(clock) / (float)inst;
         cout << "Accesses: " << accesses << endl;
@@ -288,6 +288,8 @@ public:
         cout << "Memory Stalls: " << memoryStalls << endl;
         cout << "CPI with Cache: " << fixed << setprecision(2) << cpiWithCache << endl;
         cout << "CPI without Cache: " << fixed << setprecision(2) << cpiWithoutCache << endl;
+        cout<< "Number of ways: "<<numWays<<endl;
+        cout<< "Number of sets: "<<numSets<<endl;
     }
 };
 

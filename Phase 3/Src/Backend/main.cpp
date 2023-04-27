@@ -64,22 +64,20 @@ int main(int argv, char** argc){
     // Read input parameters
     int cacheSize, blockSize, numWays, missPenalty, hitTime;
     string cacheType, replacementPolicy;
-    cout << "Enter Cache Size: ";
-    cin >> cacheSize;
-    cout << "Enter Block Size: ";
-    cin >> blockSize;
-    cout << "Enter Cache Type: ";
-    cin >> cacheType;
-    cout << "Enter Replacement Policy: ";
-    cin >> replacementPolicy;
-    cout << "Enter hit time: ";
-    cin >> hitTime;
-    cout << "Enter Number of Ways: ";
-    cin >> numWays;
-    cout << "Enter Miss Penalty: ";
-    cin >> missPenalty;
-    // cacheSize=4, blockSize=1, cacheType="direct_mapped", replacementPolicy="LRU", hitTime=1, numWays=2, missPenalty=20;
-    // knobs[0]=knobs[1]=1;
+    // cout << "Enter Cache Size: ";
+    cacheSize=64;
+    // cout << "Enter Block Size: ";
+    blockSize=4;
+    // cout << "Enter Cache Type: ";direct_mapped/fully_assoc/set_assoc/
+    cacheType="direct_mapped";
+    // cout << "Enter Replacement Policy: ";
+    replacementPolicy="LRU";
+    // cout << "Enter hit time: ";
+    hitTime=1;
+    // cout << "Enter Number of Ways: ";
+    numWays=2;
+    // cout << "Enter Miss Penalty: ";
+    missPenalty=40;
     Pipeline IF_DE, DE_EX, EX_MA, MA_WB;
     Cache $I(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays, instruction_memory);
     Cache $M(cacheSize, blockSize, cacheType, replacementPolicy, hitTime, missPenalty, numWays, memory);
@@ -92,7 +90,7 @@ int main(int argv, char** argc){
     int num_alu=0;
     int num_LS=0;
     int wrong_pred=0;
-    knobs[4]=20;
+    // knobs[4]=20;
     while(1){
         if(knobs[0]){// if pipeline mode is not turned off
             if(MA_WB.isStall>0){
@@ -180,21 +178,11 @@ int main(int argv, char** argc){
                 cout<<"EX_MA Pipeline Register\n";print(EX_MA);cout<<"\n";
                 cout<<"MA_WB Pipeline Register\n";print(MA_WB);cout<<"\n";
             }
-            if(knobs[4]==NIE || alpha>0){
-                if(alpha==0){
+            if(knobs[4]==clock){
                 cout<<"IF_DE Pipeline Register for 0x"<<hex<<knobs[4]<<" th instruction\n";print(IF_DE);cout<<"\n";
-                }
-                else if(alpha==1){
                 cout<<"DE_EX Pipeline Register for 0x"<<knobs[4]<<" th instruction\n";print(DE_EX);cout<<"\n";
-                }
-                else if(alpha==2){
                 cout<<"EX_MA Pipeline Register for 0x"<<knobs[4]<<" th instruction\n";print(EX_MA);cout<<"\n";
-                }
-                else{
                 cout<<"MA_WB Pipeline Register for 0x"<<knobs[4]<<" th instruction\n";print(MA_WB);cout<<"\n";
-                alpha=-1;
-                }
-                alpha++;
             }
         }
         else{
