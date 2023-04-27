@@ -271,14 +271,14 @@ public:
         return vals;
     }
     // Print function
-    void caclulateStats()
+    void caclulateStats(uint32_t clock, uint32_t inst)
     {
-        accesses = hits + misses;
+        accesses = hits*hitTime + misses*missPenalty;
         coldMisses = misses - conflictMisses - capacityMisses;
         conflictMisses = numSets - 1;
         capacityMisses = misses - conflictMisses - coldMisses;
-        float cpiWithCache = (float)(accesses + memoryStalls) / float(accesses);
-        float cpiWithoutCache = (float)(accesses * missPenalty) / (float)accesses;
+        float cpiWithCache = (float)(clock +accesses) / float(inst);
+        float cpiWithoutCache = (float)(clock) / (float)inst;
         cout << "Accesses: " << accesses << endl;
         cout << "Hits: " << hits << endl;
         cout << "Misses: " << misses << endl;
@@ -286,10 +286,7 @@ public:
         cout << "Conflict Misses: " << conflictMisses << endl;
         cout << "Capacity Misses: " << capacityMisses << endl;
         cout << "Memory Stalls: " << memoryStalls << endl;
-        cout << "CPI with Cache: " << cpiWithCache << endl;
-        cout << "CPI with Cache: " << cpiWithCache << endl;
         cout << "CPI with Cache: " << fixed << setprecision(2) << cpiWithCache << endl;
-        cout << "CPI without Cache: " << cpiWithoutCache << endl;
         cout << "CPI without Cache: " << fixed << setprecision(2) << cpiWithoutCache << endl;
     }
 };

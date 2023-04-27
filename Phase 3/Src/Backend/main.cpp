@@ -228,12 +228,16 @@ int main(int argv, char** argc){
             print_registers(clock);
         }
     }
+    cout<<"Instruction Cache Stats: \n";
+    $I.caclulateStats(clock, NIE);
+    cout<<"Data Cache Stats: \n";
+    $M.caclulateStats(clock, NIE);
     // Open the output file in truncate mode to clear existing contents
     ofstream outfile("output.txt", ios::trunc);
     // Write the output to the file
     outfile << "Number of instruction executed         -> " << NIE << endl;
     outfile << "Total number of cycles                 -> " << clock << endl;
-    outfile << "CPI                                    -> " << (float(clock) / NIE) << endl;
+    outfile << "CPI without memory stalls              -> " << (float(clock) / NIE) << endl;
     outfile << "Total Number of stalls                 -> " << stalls << endl;
     outfile << "Number of control Instructions         -> " << num_C_inst << endl;
     outfile << "Number of ALU Instructions             -> " << num_alu << endl;

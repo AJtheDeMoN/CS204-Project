@@ -1,6 +1,6 @@
 Number of instruction executed         -> 38
 Total number of cycles                 -> 41
-CPI                                    -> 1.07895
+CPI without memory stalls              -> 1.07895
 Total Number of stalls                 -> 3
 Number of control Instructions         -> 10
 Number of ALU Instructions             -> 23
