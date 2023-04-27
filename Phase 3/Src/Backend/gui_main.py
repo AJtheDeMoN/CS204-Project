@@ -32,7 +32,7 @@ def run_simulator(file_path, pipeline, forwarding, reg, pipe_all, pipe_x):
         args.append(str(pipe_x))
         
 
-    result = subprocess.run(args, text=True)
+    result = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE,text=True)
     return result.stdout, result.stderr
 
 st.title('RISC-V Simulator')

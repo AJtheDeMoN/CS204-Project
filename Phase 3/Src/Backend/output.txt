@@ -1,12 +1,12 @@
-Number of instruction executed         -> 38
-Total number of cycles                 -> 41
-CPI without memory stalls              -> 1.07895
-Total Number of stalls                 -> 3
-Number of control Instructions         -> 10
-Number of ALU Instructions             -> 23
-Number of load/store Instructions      -> 0
-Number of branch mispredictions        -> 3
-Number of data hazards                 -> 7
-Number of control hazards              -> 3
+Number of instruction executed         -> 97
+Total number of cycles                 -> 101
+CPI without memory stalls              -> 1.04124
+Total Number of stalls                 -> 4
+Number of control Instructions         -> 30
+Number of ALU Instructions             -> 45
+Number of load/store Instructions      -> 18
+Number of branch mispredictions        -> 4
+Number of data hazards                 -> 40
+Number of control hazards              -> 4
 Number of stalls due to data hazards   -> 0
-Number of stalls due to control hazards-> 3
+Number of stalls due to control hazards-> 4
